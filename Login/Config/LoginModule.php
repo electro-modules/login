@@ -11,11 +11,11 @@ use Selenia\Interfaces\ModuleInterface;
 use Selenia\Interfaces\Navigation\NavigationInterface;
 use Selenia\Interfaces\Navigation\NavigationProviderInterface;
 
-class LoginFormsModule implements ModuleInterface, RequestHandlerInterface, NavigationProviderInterface
+class LoginModule implements ModuleInterface, RequestHandlerInterface, NavigationProviderInterface
 {
   /** @var RouterInterface */
   private $router;
-  /** @var LoginFormsSettings */
+  /** @var LoginSettings */
   private $settings;
 
   function __invoke (ServerRequestInterface $request, ResponseInterface $response, callable $next)
@@ -29,7 +29,7 @@ class LoginFormsModule implements ModuleInterface, RequestHandlerInterface, Navi
       ->__invoke ($request, $response, $next);
   }
 
-  function configure (ModuleServices $module, LoginFormsSettings $settings, RouterInterface $router)
+  function configure (ModuleServices $module, LoginSettings $settings, RouterInterface $router)
   {
     $this->settings = $settings;
     $this->router   = $router;

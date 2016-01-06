@@ -9,7 +9,7 @@ use Selenia\Traits\ConfigurationTrait;
  *
  * @method $this|string  urlPrefix (string $v = null) Relative URL that prefixes all URLs to the login pages
  */
-class LoginFormsSettings implements AssignableInterface
+class LoginSettings implements AssignableInterface
 {
   use ConfigurationTrait;
 
