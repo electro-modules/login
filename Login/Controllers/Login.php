@@ -17,6 +17,7 @@ class Login extends PageComponent
 
   /**
    * Attempts to log in the user with the given credentials.
+   *
    * @param string $username
    * @param string $password
    * @throws AuthenticationException If the login fails.
@@ -40,7 +41,8 @@ class Login extends PageComponent
         try {
           $user->onLogin ();
           $this->session->setUser ($user);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
           throw new AuthenticationException($e->getMessage ());
         }
       }
@@ -67,48 +69,52 @@ class Login extends PageComponent
   { ?>
     <BaseAdmin>
 
-      <Body class="login-page"/>
+      <body class="login-page">
+        <form method="post" onsubmit="return Form_onSubmit()">
+          <input type="hidden" name="_action">
 
-      {!! statusMessage !!}
+          {!! statusMessage !!}
 
-      <div class="login-box">
-        <!--
-        <div class="login-logo">
-          <img src="i/logo.png"/>
-        </div>
-        -->
-        <div class="login-box-body">
-          <h1 class="text-info">{{ app.appName }}</h1>
-          <h4>$LOGIN_PROMPT</h4>
-          <div class="form-group has-feedback">
-            <Input name="username"
-                   type="text"
-                   class="form-control"
-                   placeholder="$LOGIN_USERNAME"
-                   autofocus
-                   autoselect
-                   value="{{ model.username }}"/>
-            <span class="glyphicon glyphicon-user form-control-feedback"></span>
-          </div>
-          <div class="form-group has-feedback">
-            <Input name="password"
-                   type="password"
-                   class="form-control"
-                   placeholder="$LOGIN_PASSWORD"
-                   value="{{ model.password }}"/>
-            <span class="glyphicon glyphicon-lock form-control-feedback"></span>
-          </div>
-          <div class="row">
-            <div class="col-sm-6 col-sm-offset-3">
-              <Button class="btn-info btn-lg btn-block icon-right"
-                      type="submit"
-                      script="doAction('login')"
-                      icon="fa fa-play-circle"
-                      label="$LOGIN_BUTTON"/>
+          <div class="login-box">
+            <!--
+            <div class="login-logo">
+              <img src="i/logo.png"/>
+            </div>
+            -->
+            <div class="login-box-body">
+              <h1 class="text-info">{{ app.appName }}</h1>
+              <h4>$LOGIN_PROMPT</h4>
+              <div class="form-group has-feedback">
+                <Input name="username"
+                       type="text"
+                       class="form-control"
+                       placeholder="$LOGIN_USERNAME"
+                       autofocus
+                       autoselect
+                       value="{{ model.username }}"/>
+                <span class="glyphicon glyphicon-user form-control-feedback"></span>
+              </div>
+              <div class="form-group has-feedback">
+                <Input name="password"
+                       type="password"
+                       class="form-control"
+                       placeholder="$LOGIN_PASSWORD"
+                       value="{{ model.password }}"/>
+                <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+              </div>
+              <div class="row">
+                <div class="col-sm-6 col-sm-offset-3">
+                  <Button class="btn-info btn-lg btn-block icon-right"
+                          type="submit"
+                          script="doAction('login')"
+                          icon="fa fa-play-circle"
+                          label="$LOGIN_BUTTON"/>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </form>
+      </body>
     </BaseAdmin>
     <?php
   }
