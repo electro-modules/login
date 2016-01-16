@@ -67,7 +67,7 @@ class Login extends PageComponent
 
   protected function render ()
   { ?>
-    <BaseAdmin>
+    <Content of="master">
 
       <body class="login-page">
         <form method="post" onsubmit="return Form_onSubmit()">
@@ -115,7 +115,9 @@ class Login extends PageComponent
           </div>
         </form>
       </body>
-    </BaseAdmin>
+    </Content>
+
+    <Include view="layouts/master.html"/>
     <?php
   }
 
