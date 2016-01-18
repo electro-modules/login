@@ -1,15 +1,16 @@
 <?php
 namespace Selenia\Plugins\Login\Config;
 
-use Selenia\Plugins\Login\Controllers\Login;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Selenia\Core\Assembly\Services\ModuleServices;
 use Selenia\Interfaces\Http\RequestHandlerInterface;
 use Selenia\Interfaces\Http\RouterInterface;
+use Selenia\Interfaces\InjectorInterface;
 use Selenia\Interfaces\ModuleInterface;
 use Selenia\Interfaces\Navigation\NavigationInterface;
 use Selenia\Interfaces\Navigation\NavigationProviderInterface;
+use Selenia\Plugins\Login\Controllers\Login;
 
 class LoginModule implements ModuleInterface, RequestHandlerInterface, NavigationProviderInterface
 {
@@ -29,8 +30,10 @@ class LoginModule implements ModuleInterface, RequestHandlerInterface, Navigatio
       ->__invoke ($request, $response, $next);
   }
 
-  function configure (ModuleServices $module, LoginSettings $settings, RouterInterface $router)
+  function configure (InjectorInterface $injector, ModuleServices $module, LoginSettings $settings,
+                      RouterInterface $router)
   {
+    $injector->share (LoginSettings::class);
     $this->settings = $settings;
     $this->router   = $router;
     $module
@@ -45,9 +48,9 @@ class LoginModule implements ModuleInterface, RequestHandlerInterface, Navigatio
   function defineNavigation (NavigationInterface $navigation)
   {
     $prefix = $this->settings->urlPrefix ();
-    $navigation->add([
+    $navigation->add ([
       "$prefix/login" => $navigation
-        ->link()
+        ->link ()
         ->id ('login')
         ->title ('$LOGIN_PROMPT')
         ->visible (N),

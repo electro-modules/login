@@ -4,9 +4,12 @@ namespace Selenia\Plugins\Login\Controllers;
 use Selenia\Authentication\Exceptions\AuthenticationException;
 use Selenia\Http\Components\PageComponent;
 use Selenia\Interfaces\UserInterface;
+use Selenia\Plugins\Login\Config\LoginSettings;
 
 class Login extends PageComponent
 {
+  public $settings;
+
   public function action_login ($param = null)
   {
     if ($this->model['lang'])
@@ -55,6 +58,12 @@ class Login extends PageComponent
     $this->session->reflashPreviousUrl ();
   }
 
+  function inject ()
+  {
+    return function (LoginSettings $settings) {
+      $this->settings = $settings;
+    };
+  }
 
   protected function model ()
   {
@@ -83,6 +92,10 @@ class Login extends PageComponent
             -->
             <div class="login-box-body">
               <h1 class="text-info">{{ app.appName }}</h1>
+              <If the="{{ settings.title }}" isSet>
+                <h3 class="text-info">{{ settings.title }}</h3><br>
+              </If>
+              <h4>{{ }}</h4>
               <h4>$LOGIN_PROMPT</h4>
               <div class="form-group has-feedback">
                 <Input name="username"
