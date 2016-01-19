@@ -9,6 +9,7 @@ use Selenia\Plugins\Login\Config\LoginSettings;
 class Login extends PageComponent
 {
   public $settings;
+  public $templateUrl = 'login/login.html';
 
   public function action_login ($param = null)
   {
@@ -72,66 +73,6 @@ class Login extends PageComponent
       'password' => '',
       'lang'     => null,
     ];
-  }
-
-  protected function render ()
-  { ?>
-    <Content of="master">
-
-      <body class="login-page">
-        <form method="post" onsubmit="return Form_onSubmit()">
-          <input type="hidden" name="_action">
-
-          {!! statusMessage !!}
-
-          <div class="login-box">
-            <!--
-            <div class="login-logo">
-              <img src="i/logo.png"/>
-            </div>
-            -->
-            <div class="login-box-body">
-              <h1 class="text-info">{{ app.appName }}</h1>
-              <If the="{{ settings.title }}" isSet>
-                <h3 class="text-info">{{ settings.title }}</h3><br>
-              </If>
-              <h4>{{ }}</h4>
-              <h4>$LOGIN_PROMPT</h4>
-              <div class="form-group has-feedback">
-                <Input name="username"
-                       type="text"
-                       class="form-control"
-                       placeholder="$LOGIN_USERNAME"
-                       autofocus
-                       autoselect
-                       value="{{ model.username }}"/>
-                <span class="glyphicon glyphicon-user form-control-feedback"></span>
-              </div>
-              <div class="form-group has-feedback">
-                <Input name="password"
-                       type="password"
-                       class="form-control"
-                       placeholder="$LOGIN_PASSWORD"
-                       value="{{ model.password }}"/>
-                <span class="glyphicon glyphicon-lock form-control-feedback"></span>
-              </div>
-              <div class="row">
-                <div class="col-sm-6 col-sm-offset-3">
-                  <Button class="btn-info btn-lg btn-block icon-right"
-                          type="submit"
-                          script="doAction('login')"
-                          icon="fa fa-play-circle"
-                          label="$LOGIN_BUTTON"/>
-                </div>
-              </div>
-            </div>
-          </div>
-        </form>
-      </body>
-    </Content>
-
-    <Include view="layouts/master.html"/>
-    <?php
   }
 
 }
