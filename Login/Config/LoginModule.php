@@ -38,6 +38,7 @@ class LoginModule implements ModuleInterface, RequestHandlerInterface, Navigatio
     $this->router   = $router;
     $module
       ->provideTranslations ()
+      ->provideViews ()
       ->onPostConfig (function () use ($module) {
         $module
           ->provideNavigation ($this)
