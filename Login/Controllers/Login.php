@@ -28,12 +28,11 @@ class Login extends PageComponent
    */
   function doLogin ($username, $password)
   {
-    global $application;
     if (empty($username))
       throw new AuthenticationException (AuthenticationException::MISSING_INFO);
     else {
       /** @var UserInterface $user */
-      $user = new $application->userModel;
+      $user = new $this->app->userModel;
       $user->findByName ($username);
       if (!$user->findByName ($username))
         throw new AuthenticationException (AuthenticationException::UNKNOWN_USER);
