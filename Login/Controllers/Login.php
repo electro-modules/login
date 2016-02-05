@@ -32,8 +32,7 @@ class Login extends PageComponent
       throw new AuthenticationException (AuthenticationException::MISSING_INFO);
     else {
       /** @var UserInterface $user */
-      $user = new $this->app->userModel;
-      $user->findByName ($username);
+      $user = $this->app->createUser ();
       if (!$user->findByName ($username))
         throw new AuthenticationException (AuthenticationException::UNKNOWN_USER);
       else if (!$user->verifyPassword ($password))
