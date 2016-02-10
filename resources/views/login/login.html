@@ -7,49 +7,68 @@
       {!! statusMessage !!}
 
       <div class="login-box">
-        <!--
-        <div class="login-logo">
-          <img src="i/logo.png"/>
-        </div>
-        -->
         <div class="login-box-body">
           <h1 class="text-info">{{ app.appName }}</h1>
           <If the="{{ settings.title }}" isSet>
-            <h3 class="text-info">{{ settings.title }}</h3><br>
+            <h3 class="text-info">{{ settings.title }}</h3>
           </If>
-          <h4>{{ }}</h4>
           <h4>$LOGIN_PROMPT</h4>
           <div class="form-group has-feedback">
-            <Input name="username"
+            <label for="username">$LOGIN_USERNAME</label>
+            <input name="username"
+                   id="username"
                    type="text"
                    class="form-control"
-                   placeholder="$LOGIN_USERNAME"
                    autofocus
-                   autoselect
-                   value="{{ model.username }}"/>
+                   tabindex=1
+                   value="{{ model.username }}">
             <span class="glyphicon glyphicon-user form-control-feedback"></span>
+
+            <a class="remember" href="javascript:void(0)">$LOGIN_FORGET_PASS</a>
           </div>
           <div class="form-group has-feedback">
-            <Input name="password"
+            <label for="password">$LOGIN_PASSWORD</label>
+            <input name="password"
+                   id="password"
                    type="password"
                    class="form-control"
-                   placeholder="$LOGIN_PASSWORD"
+                   tabindex=2
                    value="{{ model.password }}"/>
             <span class="glyphicon glyphicon-lock form-control-feedback"></span>
           </div>
           <div class="row">
-            <div class="col-sm-6 col-sm-offset-3">
-              <Button class="btn-info btn-lg btn-block icon-right"
+            <div class="col-sm-6">
+              <input id="remember" type="checkbox" tabindex=3>
+              &nbsp;
+              <label for="remember">&nbsp;$LOGIN_REMEMBER_ME&nbsp;</label>
+            </div>
+            <div class="col-sm-6">
+              <button class="btn-primary btn btn-block with-icon icon-right"
                       type="submit"
-                      script="doAction('login')"
-                      icon="fa fa-play-circle"
-                      label="$LOGIN_BUTTON"/>
+                      tabindex=4
+                      onclick="doAction('login')">
+                <i class="fa fa-play-circle"></i> $LOGIN_BUTTON
+              </button>
             </div>
           </div>
         </div>
       </div>
+
     </form>
     <Include scripts/>
+    <script>window.onload = function () {
+      setTimeout (function () {
+        var i;
+        $ ('#username').on ('keydown', function (ev) {
+          console.log (ev);
+          if (!i) {
+            i = 1;
+            if (ev.keyCode != 9 && $ (this).val ())
+              $ (this).val ('');
+          }
+        })
+      }, 1);
+    }</script>
   </body>
 </Content>
 
