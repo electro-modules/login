@@ -60,10 +60,9 @@
       setTimeout (function () {
         var i;
         $ ('#username').on ('keydown', function (ev) {
-          console.log (ev);
           if (!i) {
-            i = 1;
-            if (ev.keyCode != 9 && $ (this).val ())
+            i = true;
+            if (ev.keyCode != 13 && ev.keyCode != 9 && $ (this).val ())
               $ (this).val ('');
           }
         })
