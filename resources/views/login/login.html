@@ -1,7 +1,7 @@
 <Content of="master">
 
   <body class="login-page">
-    <form method="post" onsubmit="return Form_onSubmit()">
+    <form method="post" onsubmit="return selenia.onSubmit()">
       <input type="hidden" name="_action">
 
       {!! statusMessage !!}
@@ -46,7 +46,7 @@
               <button class="btn-primary btn btn-block with-icon icon-right"
                       type="submit"
                       tabindex=4
-                      onclick="doAction('login')">
+                      onclick="selenia.doAction('login')">
                 <i class="fa fa-play-circle"></i> $LOGIN_BUTTON
               </button>
             </div>
