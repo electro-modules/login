@@ -37,7 +37,7 @@ class Login extends PageComponent
         throw new AuthenticationException (AuthenticationException::UNKNOWN_USER);
       else if (!$user->verifyPassword ($password))
         throw new AuthenticationException (AuthenticationException::WRONG_PASSWORD);
-      else if (!$user->active ())
+      else if (!$user->activeField ())
         throw new AuthenticationException (AuthenticationException::DISABLED);
       else {
         try {
