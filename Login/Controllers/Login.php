@@ -4,6 +4,7 @@ namespace Selenia\Plugins\Login\Controllers;
 use Selenia\Authentication\Exceptions\AuthenticationException;
 use Selenia\Http\Components\PageComponent;
 use Selenia\Interfaces\UserInterface;
+use Selenia\Plugins\IlluminateDatabase\DatabaseAPI;
 use Selenia\Plugins\Login\Config\LoginSettings;
 
 class Login extends PageComponent
@@ -59,8 +60,9 @@ class Login extends PageComponent
 
   function inject ()
   {
-    return function (LoginSettings $settings) {
+    return function (LoginSettings $settings, DatabaseAPI $db) {
       $this->settings = $settings;
+      //$db is unused om purpose, do not remove.
     };
   }
 
