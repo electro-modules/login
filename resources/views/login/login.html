@@ -1,8 +1,7 @@
 <Content of="master">
 
   <body class="login-page">
-    <form method="post" onsubmit="return selenia.onSubmit()">
-      <input type="hidden" name="_action">
+    <div class="login-container">
 
       {!! statusMessage !!}
 
@@ -54,7 +53,7 @@
         </div>
       </div>
 
-    </form>
+    </div>
     <Include scripts/>
     <script>window.onload = function () {
       setTimeout (function () {

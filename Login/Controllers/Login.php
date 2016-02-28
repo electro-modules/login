@@ -3,6 +3,7 @@ namespace Selenia\Plugins\Login\Controllers;
 
 use Selenia\Authentication\Exceptions\AuthenticationException;
 use Selenia\Http\Components\PageComponent;
+use Selenia\Interfaces\SessionInterface;
 use Selenia\Interfaces\UserInterface;
 use Selenia\Plugins\IlluminateDatabase\DatabaseAPI;
 use Selenia\Plugins\Login\Config\LoginSettings;
@@ -11,6 +12,9 @@ class Login extends PageComponent
 {
   public $settings;
   public $templateUrl = 'login/login.html';
+
+  /** @var SessionInterface */
+  private $session;
 
   public function action_login ($param = null)
   {
@@ -60,8 +64,9 @@ class Login extends PageComponent
 
   function inject ()
   {
-    return function (LoginSettings $settings, DatabaseAPI $db) {
+    return function (LoginSettings $settings, DatabaseAPI $db, SessionInterface $session) {
       $this->settings = $settings;
+      $this->session = $session;
       //$db is unused om purpose, do not remove.
     };
   }
