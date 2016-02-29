@@ -41,7 +41,7 @@ class LoginModule implements ModuleInterface, RequestHandlerInterface, Navigatio
       ->provideViews ()
       ->onPostConfig (function () use ($module) {
         $module
-          ->provideNavigation ($this)
+          ->registerNavigation ($this)
           ->registerRouter ($this);
       });
   }
