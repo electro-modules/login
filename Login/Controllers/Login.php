@@ -14,7 +14,9 @@ class Login extends PageComponent
   public $templateUrl = 'login/login.html';
 
   /** @var SessionInterface */
-  private $session;
+  public $session;
+  /** @var UserInterface */
+  private $user;
 
   public function action_login ($param = null)
   {
@@ -36,8 +38,7 @@ class Login extends PageComponent
     if (empty($username))
       throw new AuthenticationException (AuthenticationException::MISSING_INFO);
     else {
-      /** @var UserInterface $user */
-      $user = $this->app->createUser ();
+      $user = $this->user;
       if (!$user->findByName ($username))
         throw new AuthenticationException (AuthenticationException::UNKNOWN_USER);
       else if (!$user->verifyPassword ($password))
@@ -64,9 +65,10 @@ class Login extends PageComponent
 
   function inject ()
   {
-    return function (LoginSettings $settings, DatabaseAPI $db, SessionInterface $session) {
+    return function (LoginSettings $settings, DatabaseAPI $db, SessionInterface $session, UserInterface $user) {
       $this->settings = $settings;
       $this->session = $session;
+      $this->user = $user;
       //$db is unused om purpose, do not remove.
     };
   }
