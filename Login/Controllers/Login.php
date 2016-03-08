@@ -10,17 +10,16 @@ use Selenia\Plugins\Login\Config\LoginSettings;
 
 class Login extends PageComponent
 {
-  public $settings;
-  public $templateUrl = 'login/login.html';
-
   /** @var SessionInterface */
   public $session;
+  public $settings;
+  public $templateUrl = 'login/login.html';
   /** @var UserInterface */
   private $user;
 
   public function action_login ($param = null)
   {
-    if ($this->model['lang'])
+    if (isset($this->model['lang']))
       $this->session->setLang ($this->model['lang']);
     $this->doLogin ($this->model['username'], $this->model['password']);
     return $this->redirection->intended ($this->request->getAttribute ('baseUri'));
@@ -67,8 +66,8 @@ class Login extends PageComponent
   {
     return function (LoginSettings $settings, DatabaseAPI $db, SessionInterface $session, UserInterface $user) {
       $this->settings = $settings;
-      $this->session = $session;
-      $this->user = $user;
+      $this->session  = $session;
+      $this->user     = $user;
       //$db is unused om purpose, do not remove.
     };
   }
