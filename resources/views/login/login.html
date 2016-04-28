@@ -1,9 +1,12 @@
+<Import service="app"/>
+<Import service="Selenia\Plugins\Login\Config\LoginSettings" as="settings"/>
+
 <Content of="master">
 
   <body class="login-page">
     <div class="login-container">
 
-      {statusMessage|*}
+      {#statusMessage|*}
 
       <div class="login-box">
         <div class="login-box-body">

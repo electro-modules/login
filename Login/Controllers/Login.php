@@ -6,14 +6,12 @@ use Selenia\Http\Components\PageComponent;
 use Selenia\Interfaces\SessionInterface;
 use Selenia\Interfaces\UserInterface;
 use Selenia\Plugins\IlluminateDatabase\DatabaseAPI;
-use Selenia\Plugins\Login\Config\LoginSettings;
 
 class Login extends PageComponent
 {
-  /** @var SessionInterface */
-  public $session;
-  public $settings;
   public $templateUrl = 'login/login.html';
+  /** @var SessionInterface */
+  private $session;
   /** @var UserInterface */
   private $user;
 
@@ -56,29 +54,28 @@ class Login extends PageComponent
     }
   }
 
+  function inject ()
+  {
+    return function (DatabaseAPI $db, SessionInterface $session, UserInterface $user) {
+      $this->session = $session;
+      $this->user    = $user;
+      //$db is unused om purpose, do not remove.
+    };
+  }
+
   protected function initialize ()
   {
     parent::initialize ();
     $this->session->reflashPreviousUrl ();
   }
 
-  function inject ()
-  {
-    return function (LoginSettings $settings, DatabaseAPI $db, SessionInterface $session, UserInterface $user) {
-      $this->settings = $settings;
-      $this->session  = $session;
-      $this->user     = $user;
-      //$db is unused om purpose, do not remove.
-    };
-  }
-
   protected function model ()
   {
-    return [
+    $this->modelController->setModel ([
       'username' => '',
       'password' => '',
       'lang'     => null,
-    ];
+    ]);
   }
 
 }
