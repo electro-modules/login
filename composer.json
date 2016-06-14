@@ -21,7 +21,8 @@
   "homepage": "https://github.com/selenia-plugins/login",
   "require": {
     "php": ">=5.6.0",
-    "selenia/installers": "^1.0.0"
+    "selenia/installers": "^1.0.0",
+    "selenia-plugins/matisse": "dev-master"
   },
   "autoload": {
     "psr-4": {

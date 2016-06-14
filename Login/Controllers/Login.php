@@ -2,10 +2,10 @@
 namespace Selenia\Plugins\Login\Controllers;
 
 use Selenia\Authentication\Exceptions\AuthenticationException;
-use Selenia\Http\Components\PageComponent;
 use Selenia\Interfaces\SessionInterface;
 use Selenia\Interfaces\UserInterface;
 use Selenia\Plugins\IlluminateDatabase\DatabaseAPI;
+use Selenia\Plugins\Matisse\Components\Base\PageComponent;
 
 class Login extends PageComponent
 {
