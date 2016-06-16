@@ -1,9 +1,10 @@
 {
-  "name": "selenia-plugins/login",
+  "name": "selenia-modules/login",
   "description": "A set of pages and transactional emails for user login, signup and password reset",
-  "type": "selenia-plugin",
+  "type": "electro-plugin",
   "keywords": [
     "plugin",
+    "electro",
     "selenia"
   ],
   "license": "MIT",
@@ -18,11 +19,11 @@
       "email": "claudio.silva@impactwave.com"
     }
   ],
-  "homepage": "https://github.com/selenia-plugins/login",
+  "homepage": "https://github.com/selenia-modules/login",
   "require": {
     "php": ">=5.6.0",
-    "selenia/installers": "^1.0.0",
-    "selenia-plugins/matisse": "dev-master"
+    "electro/installers": "^1.0.0",
+    "electro-plugins/matisse": "dev-master"
   },
   "autoload": {
     "psr-4": {
