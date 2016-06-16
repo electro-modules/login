@@ -23,7 +23,7 @@
   "require": {
     "php": ">=5.6.0",
     "electro/installers": "^1.0.0",
-    "electro-plugins/matisse": "dev-master"
+    "electro-modules/matisse": "dev-master"
   },
   "autoload": {
     "psr-4": {
