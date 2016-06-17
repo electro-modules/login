@@ -10,7 +10,7 @@ use Electro\Interfaces\Http\RouterInterface;
 use Electro\Interfaces\ModuleInterface;
 use Electro\Interfaces\Navigation\NavigationInterface;
 use Electro\Interfaces\Navigation\NavigationProviderInterface;
-use Electro\Plugins\Login\Controllers\Login;
+use Selenia\Plugins\Login\Controllers\Login;
 
 class LoginModule implements ModuleInterface, RequestHandlerInterface, NavigationProviderInterface
 {
