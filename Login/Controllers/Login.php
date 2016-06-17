@@ -1,11 +1,11 @@
 <?php
-namespace Selenia\Plugins\Login\Controllers;
+namespace Electro\Plugins\Login\Controllers;
 
-use Selenia\Authentication\Exceptions\AuthenticationException;
-use Selenia\Interfaces\SessionInterface;
-use Selenia\Interfaces\UserInterface;
-use Selenia\Plugins\IlluminateDatabase\DatabaseAPI;
-use Selenia\Plugins\Matisse\Components\Base\PageComponent;
+use Electro\Authentication\Exceptions\AuthenticationException;
+use Electro\Interfaces\SessionInterface;
+use Electro\Interfaces\UserInterface;
+use Electro\Plugins\IlluminateDatabase\DatabaseAPI;
+use Electro\Plugins\Matisse\Components\Base\PageComponent;
 
 class Login extends PageComponent
 {

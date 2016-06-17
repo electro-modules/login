@@ -1,16 +1,16 @@
 <?php
-namespace Selenia\Plugins\Login\Config;
+namespace Electro\Plugins\Login\Config;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Selenia\Core\Assembly\Services\ModuleServices;
-use Selenia\Interfaces\DI\InjectorInterface;
-use Selenia\Interfaces\Http\RequestHandlerInterface;
-use Selenia\Interfaces\Http\RouterInterface;
-use Selenia\Interfaces\ModuleInterface;
-use Selenia\Interfaces\Navigation\NavigationInterface;
-use Selenia\Interfaces\Navigation\NavigationProviderInterface;
-use Selenia\Plugins\Login\Controllers\Login;
+use Electro\Core\Assembly\Services\ModuleServices;
+use Electro\Interfaces\DI\InjectorInterface;
+use Electro\Interfaces\Http\RequestHandlerInterface;
+use Electro\Interfaces\Http\RouterInterface;
+use Electro\Interfaces\ModuleInterface;
+use Electro\Interfaces\Navigation\NavigationInterface;
+use Electro\Interfaces\Navigation\NavigationProviderInterface;
+use Electro\Plugins\Login\Controllers\Login;
 
 class LoginModule implements ModuleInterface, RequestHandlerInterface, NavigationProviderInterface
 {

@@ -1,8 +1,8 @@
 <?php
-namespace Selenia\Plugins\Login\Config;
+namespace Electro\Plugins\Login\Config;
 
-use Selenia\Interfaces\AssignableInterface;
-use Selenia\Traits\ConfigurationTrait;
+use Electro\Interfaces\AssignableInterface;
+use Electro\Traits\ConfigurationTrait;
 
 /**
  * Configuration settings for the LoginForms module.
