@@ -1,5 +1,5 @@
 <?php
-namespace Electro\Plugins\Login\Controllers;
+namespace Selenia\Plugins\Login\Controllers;
 
 use Electro\Authentication\Exceptions\AuthenticationException;
 use Electro\Interfaces\SessionInterface;
