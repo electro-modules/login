@@ -5,7 +5,7 @@ use Electro\Authentication\Exceptions\AuthenticationException;
 use Electro\Interfaces\SessionInterface;
 use Electro\Interfaces\UserInterface;
 use Electro\Plugins\IlluminateDatabase\DatabaseAPI;
-use Electro\Plugins\Matisse\Components\Base\PageComponent;
+use Selenia\Platform\Components\Base\PageComponent;
 
 class Login extends PageComponent
 {
