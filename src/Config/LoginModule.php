@@ -1,8 +1,6 @@
 <?php
 namespace Selenia\Plugins\Login\Config;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Electro\Core\Assembly\Services\ModuleServices;
 use Electro\Interfaces\DI\InjectorInterface;
 use Electro\Interfaces\Http\RequestHandlerInterface;
@@ -10,6 +8,8 @@ use Electro\Interfaces\Http\RouterInterface;
 use Electro\Interfaces\ModuleInterface;
 use Electro\Interfaces\Navigation\NavigationInterface;
 use Electro\Interfaces\Navigation\NavigationProviderInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Selenia\Plugins\Login\Controllers\Login;
 
 class LoginModule implements ModuleInterface, RequestHandlerInterface, NavigationProviderInterface
@@ -24,7 +24,8 @@ class LoginModule implements ModuleInterface, RequestHandlerInterface, Navigatio
     return $this->router
       ->set ([
         $this->settings->urlPrefix () . '...' => [
-          'login' => Login::class,
+          'login'  => Login::class,
+          'logout' => controller ([Login::class, 'logout']),
         ],
       ])
       ->__invoke ($request, $response, $next);

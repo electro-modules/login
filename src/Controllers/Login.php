@@ -63,6 +63,12 @@ class Login extends PageComponent
     };
   }
 
+  function logout ($request)
+  {
+    $this->session->logout ();
+    return $this->redirection->setRequest ($request)->home ();
+  }
+
   protected function initialize ()
   {
     parent::initialize ();
