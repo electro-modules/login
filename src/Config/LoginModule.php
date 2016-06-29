@@ -6,13 +6,11 @@ use Electro\Interfaces\DI\InjectorInterface;
 use Electro\Interfaces\Http\RequestHandlerInterface;
 use Electro\Interfaces\Http\RouterInterface;
 use Electro\Interfaces\ModuleInterface;
-use Electro\Interfaces\Navigation\NavigationInterface;
-use Electro\Interfaces\Navigation\NavigationProviderInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Selenia\Plugins\Login\Controllers\Login;
 
-class LoginModule implements ModuleInterface, RequestHandlerInterface, NavigationProviderInterface
+class LoginModule implements ModuleInterface, RequestHandlerInterface
 {
   /** @var RouterInterface */
   private $router;
@@ -40,20 +38,7 @@ class LoginModule implements ModuleInterface, RequestHandlerInterface, Navigatio
     $module
       ->provideTranslations ()
       ->provideViews ()
-      ->registerNavigation ($this)
-      ->registerRouter ($this);
-  }
-
-  function defineNavigation (NavigationInterface $navigation)
-  {
-    $prefix = $this->settings->urlPrefix ();
-    $navigation->add ([
-      "$prefix/login" => $navigation
-        ->link ()
-        ->id ('login')
-        ->title ('$LOGIN_PROMPT')
-        ->visible (N),
-    ]);
+      ->registerRouter ($this, 'login', 'platform');
   }
 
 }
