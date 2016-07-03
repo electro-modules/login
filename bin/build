@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 
-which lessc > /dev/null
-if [ $? -ne 0 ] ; then
-  echo -e "\nInstalling LESS..."
+function install ()
+{
+  echo -e "\nInstalling build tools..."
   sudo npm install -g less less-plugin-clean-css sane || exit $?
-fi
+}
+
+which lessc > /dev/null || install
+which sane > /dev/null || install
 
 if [ "$1" == "--watch" ]; then
   echo -e "\nPress Ctrl-C to stop.\n"
