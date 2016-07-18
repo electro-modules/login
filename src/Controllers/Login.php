@@ -17,6 +17,7 @@ class Login extends PageComponent
 
   public function action_login ($param = null)
   {
+//    echo "<pre>";var_dump($this->modelController);exit;
     if (isset($this->model['lang']))
       $this->session->setLang ($this->model['lang']);
     $this->doLogin ($this->model['username'], $this->model['password']);
