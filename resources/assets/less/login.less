@@ -2,31 +2,35 @@
    LOGIN
 --------------------------------------------------------------------*/
 
+@input-bg: #FFF;
+
 .login-box-body {
   display: inline-block;
   max-width: 400px;
   width: 100%;
   padding: 20px 45px;
-  background: #333952;
-  border: 2px solid #2a2f43;
-  color: #abaec7;
+  background: #FFF;
+  border: 2px solid #CCC;
+  color: #999;
   text-align: left;
-  box-shadow: 1px 1px 20px rgba(0,0,0,0.2);
+  //box-shadow: 1px 1px 20px rgba(0,0,0,0.2);
 
-  .form-group > label {
-    color: #abaec7;
+  .form-group {
+    margin-bottom: 25px;
+    & > label {
+      color: #666;
+      font-weight: 400;
+    }
   }
 
   h1 {
-    color: #c2ceff;
-    font-weight: 100;
+    font-weight: 300;
     font-size: 24px;
     text-align: center;
     margin: 5px 0 15px 0;
   }
 
   h3 {
-    color: #919bc3;
     font-size: 18px;
     text-align: center;
     font-weight: 100;
@@ -34,15 +38,13 @@
   }
 
   h4 {
-    color: #7f87a3;
-    margin: 0 0 18px;
+    margin: 25px 0;
     font-size: 16px;
     text-align: center;
-    font-weight: 100;
+    font-weight: 300;
   }
 
   .remember {
-    color: #7f87a3;
     float: right;
     display: block;
     margin-top: 5px;
@@ -52,39 +54,34 @@
   }
 
   input[type=text], input[type=password] {
-    background-color: hsla(234,20%,80%,1);
-    border: none;
+    background-color: @input-bg;
+    border: 1px solid #DDD;
+
+    &:focus {
+      border-bottom-color: #337AB7;
+    }
   }
 
   // Override autofilled inputs' colors on Chrome
   input[type]:-webkit-autofill, input[type]:-webkit-autofill:focus {
-    box-shadow: 0 0 0 1000px hsla(234,20%,80%,1) inset!important;
+    box-shadow: 0 0 0 1000px @input-bg inset!important;
   }
 
   input[type=checkbox]:focus + label {
     outline: 1px dotted #888;
   }
 
-  .form-control-feedback {
-    color: #7f87a3;
+  .has-feedback .form-control-feedback {
+    color: #BBB;
+    top: 22px;
   }
 
   label[for=remember] {
     margin-top: 7px;
+    font-weight: 400;
   }
 
   .btn {
-    padding-right: 18px !important;
-    background-color: #424b66;
-    border: 1px solid #2A2F43;
-    border-radius: 3px;
-
-    &:hover {
-      background-color: #535d84;
-    }
-    &:active {
-      background-color: #4B5477;
-    }
 
     i {
       position: static !important;
@@ -100,7 +97,7 @@
 body.login-page {
   max-width: none;
   margin-left: 0 !important;
-  background: #4B6277;
+  background: #EEE;
 
   .login-container {
     display: table;
