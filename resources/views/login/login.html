@@ -2,75 +2,72 @@
 <Import service="Selenia\Plugins\Login\Config\LoginSettings" as="settings"/>
 <Style src="modules/selenia-modules/login/dist/login.css"/>
 
-<Content of="master">
+<Content of=bodyAttrs value="class=login-page"/>
+<Content of="body">
+  <Script>
+    window.onload = function () {
+      $ ('.login-box').fadeTo (200, 1);
+      var i;
+      $ ('#username').on ('keypress', function (ev) {
+        if (!i) {
+          i = true;
+          if (ev.keyCode != 13 && $ (this).val ())
+            $ (this).val ('');
+        }
+      });
+    }
+  </Script>
 
-  <body class="login-page">
+  {#statusMessage|*}
 
-    {#statusMessage|*}
+  <div class="login-container">
+    <div class="login-box" style="opacity:0">
+      <div class="login-box-body">
+        <h1 class="text-info">{app.appName}</h1>
+        <If {settings.title}>
+          <h3 class="text-info">{settings.title}</h3>
+        </If>
+        <h4>$LOGIN_PROMPT</h4>
+        <div class="form-group has-feedback">
+          <label for="username">$LOGIN_USERNAME</label>
+          <input name="model/username"
+                 id="username"
+                 type="text"
+                 class="form-control"
+                 autofocus
+                 tabindex=1
+                 value={model.username}>
+          <span class="glyphicon glyphicon-user form-control-feedback"></span>
 
-    <div class="login-container">
-      <div class="login-box">
-        <div class="login-box-body">
-          <h1 class="text-info">{app.appName}</h1>
-          <If {settings.title}>
-            <h3 class="text-info">{settings.title}</h3>
-          </If>
-          <h4>$LOGIN_PROMPT</h4>
-          <div class="form-group has-feedback">
-            <label for="username">$LOGIN_USERNAME</label>
-            <input name="model/username"
-                   id="username"
-                   type="text"
-                   class="form-control"
-                   autofocus
-                   tabindex=1
-                   value={model.username}>
-            <span class="glyphicon glyphicon-user form-control-feedback"></span>
-
-            <a class="remember" href="javascript:void(0)">$LOGIN_FORGET_PASS</a>
+          <a class="remember" href="javascript:void(0)">$LOGIN_FORGET_PASS</a>
+        </div>
+        <div class="form-group has-feedback">
+          <label for="password">$LOGIN_PASSWORD</label>
+          <input name="model/password"
+                 id="password"
+                 type="password"
+                 class="form-control"
+                 tabindex=2
+                 value={model.password}/>
+          <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+        </div>
+        <div class="row">
+          <div class="col-sm-6">
+            <input id="remember" type="checkbox" tabindex=3>
+            <label for="remember">&nbsp;$LOGIN_REMEMBER_ME&nbsp;</label>
           </div>
-          <div class="form-group has-feedback">
-            <label for="password">$LOGIN_PASSWORD</label>
-            <input name="model/password"
-                   id="password"
-                   type="password"
-                   class="form-control"
-                   tabindex=2
-                   value={model.password}/>
-            <span class="glyphicon glyphicon-lock form-control-feedback"></span>
-          </div>
-          <div class="row">
-            <div class="col-sm-6">
-              <input id="remember" type="checkbox" tabindex=3>
-              <label for="remember">&nbsp;$LOGIN_REMEMBER_ME&nbsp;</label>
-            </div>
-            <div class="col-sm-6">
-              <button class="btn-primary btn btn-block with-icon icon-right"
-                      type="submit"
-                      tabindex=4
-                      onclick="selenia.doAction('login')">
-                <i class="fa fa-play-circle"></i> $LOGIN_BUTTON
-              </button>
-            </div>
+          <div class="col-sm-6">
+            <button class="btn-primary btn btn-block with-icon icon-right"
+                    type="submit"
+                    tabindex=4
+                    onclick="selenia.doAction('login')">
+              <i class="fa fa-play-circle"></i> $LOGIN_BUTTON
+            </button>
           </div>
         </div>
       </div>
-
     </div>
-    <Include scripts/>
-    <script>window.onload = function () {
-      setTimeout (function () {
-        var i;
-        $ ('#username').on ('keydown', function (ev) {
-          if (!i) {
-            i = true;
-            if (ev.keyCode != 13 && ev.keyCode != 9 && $ (this).val ())
-              $ (this).val ('');
-          }
-        })
-      }, 1);
-    }</script>
-  </body>
+  </div>
 </Content>
 
 <Include view="platform/layouts/master.html"/>

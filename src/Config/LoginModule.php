@@ -38,7 +38,6 @@ class LoginModule implements ModuleInterface, RequestHandlerInterface
     $module
       ->provideTranslations ()
       ->provideViews ()
-      ->publishPublicDirAs('modules/selenia-modules/login')
       ->registerRouter ($this, 'login', 'platform');
   }
 
