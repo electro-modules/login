@@ -1,6 +1,7 @@
 <?php
 namespace Selenia\Plugins\Login\Config;
 
+use Electro\Core\Assembly\Services\Bootstrapper;
 use Electro\Core\Assembly\Services\ModuleServices;
 use Electro\Interfaces\DI\InjectorInterface;
 use Electro\Interfaces\Http\RequestHandlerInterface;
@@ -29,16 +30,19 @@ class LoginModule implements ModuleInterface, RequestHandlerInterface
       ->__invoke ($request, $response, $next);
   }
 
-  function configure (InjectorInterface $injector, ModuleServices $module, LoginSettings $settings,
-                      RouterInterface $router)
+  static function boot (Bootstrapper $boot)
   {
-    $injector->share (LoginSettings::class);
-    $this->settings = $settings;
-    $this->router   = $router;
-    $module
-      ->provideTranslations ()
-      ->provideViews ()
-      ->registerRouter ($this, 'login', 'platform');
+    $boot->on (Bootstrapper::EVENT_BOOT,
+      function (InjectorInterface $injector, ModuleServices $module, LoginSettings $settings,
+                RouterInterface $router) {
+        $injector->share (LoginSettings::class);
+        $this->settings = $settings;
+        $this->router   = $router;
+        $module
+          ->provideTranslations ()
+          ->provideViews ()
+          ->registerRouter ($this, 'login', 'platform');
+      });
   }
 
 }
