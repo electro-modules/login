@@ -4,6 +4,7 @@ namespace Selenia\Plugins\Login\Config;
 use Electro\Authentication\Config\AuthenticationSettings;
 use Electro\Core\Assembly\ModuleInfo;
 use Electro\Core\Assembly\Services\Bootstrapper;
+use Electro\Core\Profiles\WebProfile;
 use Electro\Interfaces\DI\InjectorInterface;
 use Electro\Interfaces\Http\RequestHandlerInterface;
 use Electro\Interfaces\Http\RouterInterface;
@@ -32,21 +33,22 @@ class LoginModule implements ModuleInterface, RequestHandlerInterface
 
   static function bootUp (Bootstrapper $bootstrapper, ModuleInfo $moduleInfo)
   {
-    $bootstrapper
-      //
-      ->on (REGISTER_SERVICES,
-        function (InjectorInterface $injector) {
-          $injector->share (LoginSettings::class);
-        })
-      //
-      ->on (CONFIGURE,
-        function (LocalizationSettings $localizationSettings, ViewEngineSettings $viewEngineSettings,
-                  ApplicationRouterInterface $applicationRouter
-        ) use ($moduleInfo) {
-          $localizationSettings->registerTranslations ($moduleInfo);
-          $viewEngineSettings->registerViews ($moduleInfo);
-          $applicationRouter->add (self::class, 'login', 'platform');
-        });
+    if ($bootstrapper->profile instanceof WebProfile)
+      $bootstrapper
+        //
+        ->on (REGISTER_SERVICES,
+          function (InjectorInterface $injector) {
+            $injector->share (LoginSettings::class);
+          })
+        //
+        ->on (CONFIGURE,
+          function (LocalizationSettings $localizationSettings, ViewEngineSettings $viewEngineSettings,
+                    ApplicationRouterInterface $applicationRouter
+          ) use ($moduleInfo) {
+            $localizationSettings->registerTranslations ($moduleInfo);
+            $viewEngineSettings->registerViews ($moduleInfo);
+            $applicationRouter->add (self::class, 'login', 'platform');
+          });
   }
 
   function __invoke (ServerRequestInterface $request, ResponseInterface $response, callable $next)
