@@ -2,21 +2,21 @@
 namespace Selenia\Plugins\Login\Config;
 
 use Electro\Authentication\Config\AuthenticationSettings;
-use Electro\Core\Assembly\ModuleInfo;
-use Electro\Core\Assembly\Services\Bootstrapper;
-use Electro\Core\Profiles\WebProfile;
 use Electro\Interfaces\DI\InjectorInterface;
 use Electro\Interfaces\Http\RequestHandlerInterface;
 use Electro\Interfaces\Http\RouterInterface;
 use Electro\Interfaces\Http\Shared\ApplicationRouterInterface;
 use Electro\Interfaces\ModuleInterface;
+use Electro\Kernel\Lib\ModuleInfo;
+use Electro\Kernel\Services\Bootstrapper;
 use Electro\Localization\Config\LocalizationSettings;
+use Electro\Profiles\WebProfile;
 use Electro\ViewEngine\Config\ViewEngineSettings;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Selenia\Plugins\Login\Controllers\Login;
-use const Electro\Core\Assembly\Services\CONFIGURE;
-use const Electro\Core\Assembly\Services\REGISTER_SERVICES;
+use const Electro\Kernel\Services\CONFIGURE;
+use const Electro\Kernel\Services\REGISTER_SERVICES;
 
 class LoginModule implements ModuleInterface, RequestHandlerInterface
 {
