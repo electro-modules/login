@@ -6,17 +6,15 @@ use Electro\Interfaces\DI\InjectorInterface;
 use Electro\Interfaces\Http\RequestHandlerInterface;
 use Electro\Interfaces\Http\RouterInterface;
 use Electro\Interfaces\Http\Shared\ApplicationRouterInterface;
+use Electro\Interfaces\KernelInterface;
 use Electro\Interfaces\ModuleInterface;
 use Electro\Kernel\Lib\ModuleInfo;
-use Electro\Kernel\Services\Bootstrapper;
 use Electro\Localization\Config\LocalizationSettings;
 use Electro\Profiles\WebProfile;
 use Electro\ViewEngine\Config\ViewEngineSettings;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Selenia\Plugins\Login\Controllers\Login;
-use const Electro\Kernel\Services\CONFIGURE;
-use const Electro\Kernel\Services\REGISTER_SERVICES;
 
 class LoginModule implements ModuleInterface, RequestHandlerInterface
 {
@@ -31,17 +29,16 @@ class LoginModule implements ModuleInterface, RequestHandlerInterface
     $this->authenticationSettings = $authenticationSettings;
   }
 
-  static function bootUp (Bootstrapper $bootstrapper, ModuleInfo $moduleInfo)
+  static function startUp (KernelInterface $kernel, ModuleInfo $moduleInfo)
   {
-    if ($bootstrapper->profile instanceof WebProfile)
-      $bootstrapper
-        //
-        ->on (REGISTER_SERVICES,
+    if ($kernel->getProfile () instanceof WebProfile)
+      $kernel
+        ->onRegisterServices (
           function (InjectorInterface $injector) {
             $injector->share (LoginSettings::class);
           })
         //
-        ->on (CONFIGURE,
+        ->onConfigure (
           function (LocalizationSettings $localizationSettings, ViewEngineSettings $viewEngineSettings,
                     ApplicationRouterInterface $applicationRouter
           ) use ($moduleInfo) {
