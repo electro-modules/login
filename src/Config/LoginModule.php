@@ -29,23 +29,27 @@ class LoginModule implements ModuleInterface, RequestHandlerInterface
     $this->authenticationSettings = $authenticationSettings;
   }
 
+  static function getCompatibleProfiles ()
+  {
+    return [WebProfile::class];
+  }
+
   static function startUp (KernelInterface $kernel, ModuleInfo $moduleInfo)
   {
-    if ($kernel->getProfile () instanceof WebProfile)
-      $kernel
-        ->onRegisterServices (
-          function (InjectorInterface $injector) {
-            $injector->share (LoginSettings::class);
-          })
-        //
-        ->onConfigure (
-          function (LocalizationSettings $localizationSettings, ViewEngineSettings $viewEngineSettings,
-                    ApplicationRouterInterface $applicationRouter
-          ) use ($moduleInfo) {
-            $localizationSettings->registerTranslations ($moduleInfo);
-            $viewEngineSettings->registerViews ($moduleInfo);
-            $applicationRouter->add (self::class, 'login', 'platform');
-          });
+    $kernel
+      ->onRegisterServices (
+        function (InjectorInterface $injector) {
+          $injector->share (LoginSettings::class);
+        })
+      //
+      ->onConfigure (
+        function (LocalizationSettings $localizationSettings, ViewEngineSettings $viewEngineSettings,
+                  ApplicationRouterInterface $applicationRouter
+        ) use ($moduleInfo) {
+          $localizationSettings->registerTranslations ($moduleInfo);
+          $viewEngineSettings->registerViews ($moduleInfo);
+          $applicationRouter->add (self::class, 'login', 'platform');
+        });
   }
 
   function __invoke (ServerRequestInterface $request, ResponseInterface $response, callable $next)
