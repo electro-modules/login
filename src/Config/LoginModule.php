@@ -1,5 +1,5 @@
 <?php
-namespace Selenia\Plugins\Login\Config;
+namespace Electro\Plugins\Login\Config;
 
 use Electro\Authentication\Config\AuthenticationSettings;
 use Electro\Interfaces\DI\InjectorInterface;
@@ -10,11 +10,11 @@ use Electro\Interfaces\KernelInterface;
 use Electro\Interfaces\ModuleInterface;
 use Electro\Kernel\Lib\ModuleInfo;
 use Electro\Localization\Config\LocalizationSettings;
+use Electro\Plugins\Login\Controllers\Login;
 use Electro\Profiles\WebProfile;
 use Electro\ViewEngine\Config\ViewEngineSettings;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Selenia\Plugins\Login\Controllers\Login;
 
 class LoginModule implements ModuleInterface, RequestHandlerInterface
 {

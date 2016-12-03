@@ -1,5 +1,5 @@
 <?php
-namespace Selenia\Plugins\Login\Config;
+namespace Electro\Plugins\Login\Config;
 
 use Electro\Interfaces\AssignableInterface;
 use Electro\Traits\ConfigurationTrait;
