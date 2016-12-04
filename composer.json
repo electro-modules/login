@@ -1,5 +1,5 @@
 {
-  "name": "electro-plugins/login",
+  "name": "electro-modules/login",
   "description": "A set of pages and transactional emails for user login, signup and password reset",
   "type": "electro-plugin",
   "keywords": [
