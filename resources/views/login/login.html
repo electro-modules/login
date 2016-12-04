@@ -1,22 +1,9 @@
 <Import service="app"/>
 <Import service="Electro\Plugins\Login\Config\LoginSettings" as="settings"/>
-<Style src="modules/selenia/login/dist/login.css"/>
+<Style src="modules/electro-modules/login/dist/login.css"/>
 
 <Content of=bodyAttrs value="class=login-page"/>
 <Content of="body">
-  <Script>
-    window.onload = function () {
-      $ ('.login-box').fadeTo (200, 1);
-      var i;
-      $ ('#username').on ('keypress', function (ev) {
-        if (!i) {
-          i = true;
-          if (ev.keyCode != 13 && $ (this).val ())
-            $ (this).val ('');
-        }
-      });
-    }
-  </Script>
 
   {#statusMessage|*}
 
@@ -68,6 +55,21 @@
       </div>
     </div>
   </div>
+
+  <Script>
+    window.onload = function () {
+      $ ('.login-box').fadeTo (200, 1);
+      var i;
+      $ ('#username').on ('keypress', function (ev) {
+        if (!i) {
+          i = true;
+          if (ev.keyCode != 13 && $ (this).val ())
+            $ (this).val ('');
+        }
+      });
+    }
+  </Script>
+
 </Content>
 
 <Include view="platform/layouts/master.html"/>
