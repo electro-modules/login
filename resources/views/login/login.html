@@ -21,9 +21,9 @@
                  id="username"
                  type="text"
                  class="form-control"
-                 autofocus
                  tabindex=1
-                 value={model.username}>
+                 value="{username}"
+                 {username|else 'autofocus'}>
           <span class="glyphicon glyphicon-user form-control-feedback"></span>
 
           <a class="remember" href="javascript:void(0)">$LOGIN_FORGET_PASS</a>
@@ -35,7 +35,8 @@
                  type="password"
                  class="form-control"
                  tabindex=2
-                 value="{model.password}">
+                 value="{password}"
+                 {username|then 'autofocus'}>
           <span class="glyphicon glyphicon-lock form-control-feedback"></span>
         </div>
         <div class="row">

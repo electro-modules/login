@@ -63,20 +63,32 @@ class Login extends ViewModel
 
   public function init ()
   {
-    $this->session->reflashPreviousUrl ();
+    $session = $this->session;
+    $session->reflashPreviousUrl ();
     $this->set ([
-      'username' => '',
-      'password' => '',
-      'lang'     => null,
+      'username' => $session->getOldInput ('username'),
+      'password' => $session->getOldInput ('password'),
+      'lang'     => $session->getOldInput ('lang'),
     ]);
   }
 
   public function onSubmit ($data, ServerRequestInterface $request)
   {
+    $redirect = $this->redirection->setRequest ($request);
+    $session  = $this->session;
+
     if (isset($data['lang']))
-      $this->session->setLang ($data['lang']);
-    $this->doLogin ($data['username'], $data['password']);
-    return $this->redirection->setRequest ($request)->intended ($request->getAttribute ('baseUri'));
+      $session->setLang ($data['lang']);
+
+    try {
+      $this->doLogin ($data['username'], $data['password']);
+      return $redirect->intended ($request->getAttribute ('baseUri'));
+    }
+    catch (AuthenticationException $e) {
+      $session->flashInput ($data);
+      $session->flashMessage ($e->getMessage ());
+      return $redirect->refresh ();
+    }
   }
 
 }
