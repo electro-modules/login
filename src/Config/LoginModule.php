@@ -10,7 +10,7 @@ use Electro\Interfaces\KernelInterface;
 use Electro\Interfaces\ModuleInterface;
 use Electro\Kernel\Lib\ModuleInfo;
 use Electro\Localization\Config\LocalizationSettings;
-use Electro\Plugins\Login\ViewModels\Login\Login;
+use Electro\Plugins\Login\Controllers\Login\LoginController;
 use Electro\Profiles\WebProfile;
 use Electro\ViewEngine\Config\ViewEngineSettings;
 use Psr\Http\Message\ResponseInterface;
@@ -59,7 +59,7 @@ class LoginModule implements ModuleInterface, RequestHandlerInterface
     return $this->router
       ->set ([
         $auth->urlPrefix () . '...' => [
-          $auth->loginFormUrl () => page ('login/login.html', controller ([Login::class, 'onSubmit'])),
+          $auth->loginFormUrl () => page ('login/login.html', controller ([LoginController::class, 'onSubmit'])),
         ],
       ])
       ->__invoke ($request, $response, $next);
