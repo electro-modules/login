@@ -5,7 +5,6 @@ use Electro\Authentication\Exceptions\AuthenticationException;
 use Electro\Interfaces\Http\RedirectionInterface;
 use Electro\Interfaces\SessionInterface;
 use Electro\Interfaces\UserInterface;
-use Electro\Plugins\IlluminateDatabase\DatabaseAPI;
 use Psr\Http\Message\ServerRequestInterface;
 
 class LoginController
@@ -17,10 +16,8 @@ class LoginController
   /** @var UserInterface */
   private $user;
 
-  function __construct (DatabaseAPI $db, SessionInterface $session, UserInterface $user,
-                        RedirectionInterface $redirection)
+  function __construct (SessionInterface $session, UserInterface $user, RedirectionInterface $redirection)
   {
-    //$db is unused om purpose, do not remove.
     $this->session     = $session;
     $this->user        = $user;
     $this->redirection = $redirection;
