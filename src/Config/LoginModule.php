@@ -59,7 +59,6 @@ class LoginModule implements ModuleInterface, RequestHandlerInterface
       ->set ([
         $auth->urlPrefix () . '...' => [
           $auth->loginFormUrl () => Login::class,
-          $auth->logoutUrl ()    => controller ([Login::class, 'logout']),
         ],
       ])
       ->__invoke ($request, $response, $next);
