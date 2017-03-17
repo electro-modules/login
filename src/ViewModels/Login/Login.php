@@ -1,26 +1,33 @@
 <?php
-namespace Electro\Plugins\Login\Controllers;
+namespace Electro\Plugins\Login\ViewModels\Login;
 
 use Electro\Authentication\Exceptions\AuthenticationException;
+use Electro\Interfaces\Http\RedirectionInterface;
 use Electro\Interfaces\SessionInterface;
 use Electro\Interfaces\UserInterface;
+use Electro\Interop\ViewModel;
 use Electro\Plugins\IlluminateDatabase\DatabaseAPI;
-use Matisse\Components\Base\PageComponent;
+use Psr\Http\Message\ServerRequestInterface;
 
-class Login extends PageComponent
+class Login extends ViewModel
 {
-  public $templateUrl = 'login/login.html';
+  /**
+   * @var RedirectionInterface
+   */
+  private $redirection;
   /** @var SessionInterface */
   private $session;
   /** @var UserInterface */
   private $user;
 
-  public function action_login ($param = null)
+  public function __construct (DatabaseAPI $db, SessionInterface $session, UserInterface $user,
+                               RedirectionInterface $redirection)
   {
-    if (isset($this->model['lang']))
-      $this->session->setLang ($this->model['lang']);
-    $this->doLogin ($this->model['username'], $this->model['password']);
-    return $this->redirection->intended ($this->request->getAttribute ('baseUri'));
+    parent::__construct ();
+    //$db is unused om purpose, do not remove.
+    $this->session     = $session;
+    $this->user        = $user;
+    $this->redirection = $redirection;
   }
 
   /**
@@ -54,34 +61,22 @@ class Login extends PageComponent
     }
   }
 
-  function inject ()
+  public function init ()
   {
-    return function (DatabaseAPI $db, SessionInterface $session, UserInterface $user) {
-      $this->session = $session;
-      $this->user    = $user;
-      //$db is unused om purpose, do not remove.
-    };
-  }
-
-  function logout ($request)
-  {
-    $this->session->logout ();
-    return $this->redirection->setRequest ($request)->home ();
-  }
-
-  protected function initialize ()
-  {
-    parent::initialize ();
     $this->session->reflashPreviousUrl ();
-  }
-
-  protected function model ()
-  {
-    $this->modelController->setModel ([
+    $this->set ([
       'username' => '',
       'password' => '',
       'lang'     => null,
     ]);
+  }
+
+  public function onSubmit ($data, ServerRequestInterface $request)
+  {
+    if (isset($data['lang']))
+      $this->session->setLang ($data['lang']);
+    $this->doLogin ($data['username'], $data['password']);
+    return $this->redirection->setRequest ($request)->intended ($request->getAttribute ('baseUri'));
   }
 
 }

@@ -10,7 +10,7 @@ use Electro\Interfaces\KernelInterface;
 use Electro\Interfaces\ModuleInterface;
 use Electro\Kernel\Lib\ModuleInfo;
 use Electro\Localization\Config\LocalizationSettings;
-use Electro\Plugins\Login\Controllers\Login;
+use Electro\Plugins\Login\ViewModels\Login\Login;
 use Electro\Profiles\WebProfile;
 use Electro\ViewEngine\Config\ViewEngineSettings;
 use Psr\Http\Message\ResponseInterface;
@@ -48,6 +48,7 @@ class LoginModule implements ModuleInterface, RequestHandlerInterface
         ) use ($moduleInfo) {
           $localizationSettings->registerTranslations ($moduleInfo);
           $viewEngineSettings->registerViews ($moduleInfo);
+          $viewEngineSettings->registerViewModelsNamespace (\Electro\Plugins\Login\ViewModels::class);
           $applicationRouter->add (self::class, 'login', 'platform');
         });
   }
@@ -58,7 +59,7 @@ class LoginModule implements ModuleInterface, RequestHandlerInterface
     return $this->router
       ->set ([
         $auth->urlPrefix () . '...' => [
-          $auth->loginFormUrl () => Login::class,
+          $auth->loginFormUrl () => page ('login/login.html', controller ([Login::class, 'onSubmit'])),
         ],
       ])
       ->__invoke ($request, $response, $next);

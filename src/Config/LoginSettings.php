@@ -1,18 +1,14 @@
 <?php
 namespace Electro\Plugins\Login\Config;
 
-use Electro\Interfaces\AssignableInterface;
-use Electro\Traits\ConfigurationTrait;
-
 /**
  * Configuration settings for the LoginForms module.
- *
- * @method $this|string title (string $v = null) Title displayed on the login form. Defaults to the app title
  */
-class LoginSettings implements AssignableInterface
+class LoginSettings
 {
-  use ConfigurationTrait;
-
-  private $title;
+  /**
+   * @var string Additional title displayed on the login form.
+   */
+  public $title;
 
 }
