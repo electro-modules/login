@@ -69,6 +69,7 @@ class LoginController
     catch (AuthenticationException $e) {
       $session->flashInput ($data);
       $session->flashMessage ($e->getMessage ());
+      $session->reflashPreviousUrl ();
       return $redirect->refresh ();
     }
   }
