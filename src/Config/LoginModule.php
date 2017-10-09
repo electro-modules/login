@@ -20,13 +20,18 @@ class LoginModule implements ModuleInterface, RequestHandlerInterface
 {
   /** @var AuthenticationSettings */
   private $authenticationSettings;
+  /**
+   * @var LoginSettings
+   */
+  private $loginSettings;
   /** @var RouterInterface */
   private $router;
 
-  public function __construct (AuthenticationSettings $authenticationSettings, RouterInterface $router)
+  public function __construct (AuthenticationSettings $authenticationSettings, RouterInterface $router, LoginSettings $loginSettings)
   {
     $this->router                 = $router;
     $this->authenticationSettings = $authenticationSettings;
+    $this->loginSettings = $loginSettings;
   }
 
   static function getCompatibleProfiles ()
@@ -59,7 +64,7 @@ class LoginModule implements ModuleInterface, RequestHandlerInterface
     return $this->router
       ->set ([
         $auth->urlPrefix () . '...' => [
-          $auth->loginFormUrl () => page ('login/login.html', controller ([LoginController::class, 'onSubmit'])),
+          $auth->loginFormUrl () => page ('login/login.html', controller ($this->loginSettings->controller)),
         ],
       ])
       ->__invoke ($request, $response, $next);
