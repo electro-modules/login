@@ -33,23 +33,18 @@ class LoginController
   function doLogin ($username, $password)
   {
     if (empty($username))
-      throw new AuthenticationException (AuthenticationException::MISSING_INFO);
+      throw new AuthenticationException ('$LOGIN_MISSING_INFO');
     else {
       $user = $this->user;
       if (!$user->findByName ($username))
-        throw new AuthenticationException (AuthenticationException::UNKNOWN_USER);
+        throw new AuthenticationException ('$LOGIN_UNKNOWN_USER');
       else if (!$user->verifyPassword ($password))
-        throw new AuthenticationException (AuthenticationException::WRONG_PASSWORD);
+        throw new AuthenticationException ('$LOGIN_WRONG_PASSWORD');
       else if (!$user->activeField ())
-        throw new AuthenticationException (AuthenticationException::DISABLED);
+        throw new AuthenticationException ('$LOGIN_DISABLED');
       else {
-        try {
-          $user->onLogin ();
-          $this->session->setUser ($user);
-        }
-        catch (\Exception $e) {
-          throw new AuthenticationException($e->getMessage ());
-        }
+        $user->onLogin ();
+        $this->session->setUser ($user);
       }
     }
   }
@@ -62,16 +57,8 @@ class LoginController
     if (isset($data['lang']))
       $session->setLang ($data['lang']);
 
-    try {
-      $this->doLogin ($data['username'], $data['password']);
+    $this->doLogin ($data['username'], $data['password']);
       return $redirect->intended ($request->getAttribute ('baseUri'));
-    }
-    catch (AuthenticationException $e) {
-      $session->flashInput ($data);
-      $session->flashMessage ($e->getMessage ());
-      $session->reflashPreviousUrl ();
-      return $redirect->refresh ();
-    }
   }
 
 }
