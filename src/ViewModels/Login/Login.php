@@ -20,7 +20,7 @@ class Login extends ViewModel
     $session = $this->session;
     $session->reflashPreviousUrl ();
     $this->set ([
-      'username' => $session->getOldInput ('username'),
+      'email' => $session->getOldInput ('email'),
       'password' => $session->getOldInput ('password'),
       'lang'     => $session->getOldInput ('lang'),
     ]);
