@@ -1,0 +1,36 @@
+<Import services="app navigation session"/>
+
+<Content of=title byDefault value={navigation.currentLink.title}/>
+<Content of=description byDefault value="My default page description"/>
+
+<AssetsGroup prepend>
+  <!-- Put your base Style and Script elements here -->
+</AssetsGroup>
+
+<Content prependTo=head>
+  <meta charset="UTF-8">
+  <title>{#title + ' - ' + app.appName}</title>
+  <base href="{app.baseUrl}/">
+  <meta name="author" content="The author">
+  <meta name="description" content="{#description}">
+  <link rel="icon" href="{'i/favicon.png'|assetUrl}" type="image/png" />
+  <!-- Mobile -->
+  <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <Style src="https://stackpath.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+  <Script src="https://code.jquery.com/jquery-3.3.1.js"/>
+
+</Content>
+
+<!DOCTYPE HTML>
+<html lang="{session.getLang}" {#htmlAttrs|*}>
+  <head {#headAttrs|*}>
+    {#head|*}
+    <Include styles/>
+  </head>
+  <body {#bodyAttrs|*}>
+    {#body|*}
+    <Include scripts/>
+    {#extraContent|*}
+  </body>
+</html>
