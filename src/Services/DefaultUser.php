@@ -21,7 +21,7 @@ class DefaultUser implements UserInterface
     private $email;
 
     private $db;
-    private $usersTableName = 'users';
+    const usersTableName = 'users';
 
     static $INSPECTABLE = ['active', 'id', 'lastLogin', 'realName', 'registrationDate', 'role', 'token', 'email', 'password'];
 
@@ -39,7 +39,7 @@ class DefaultUser implements UserInterface
 
     public function findById($id)
     {
-        $user = $this->db->select('SELECT * FROM ' . $this->usersTableName . ' WHERE id = ?', [$id])->fetch();
+        $user = $this->db->select('SELECT * FROM ' . self::usersTableName . ' WHERE id = ?', [$id])->fetch();
         if ($user) {
             $this->fillFields($user);
             return true;
@@ -49,7 +49,7 @@ class DefaultUser implements UserInterface
 
     public function findByName($username)
     {
-        $user = $this->db->select('SELECT * FROM ' . $this->usersTableName . ' WHERE email = ?', [$username])->fetchObject();
+        $user = $this->db->select('SELECT * FROM ' . self::usersTableName . ' WHERE email = ?', [$username])->fetchObject();
         if ($user) {
             $this->fillFields($user);
             return true;

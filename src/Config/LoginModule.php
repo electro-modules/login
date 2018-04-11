@@ -13,6 +13,7 @@ use Electro\Kernel\Lib\ModuleInfo;
 use Electro\Localization\Config\LocalizationSettings;
 use Electro\Navigation\Config\NavigationSettings;
 use Electro\Plugins\Login\Controllers\Login\LoginController;
+use Electro\Plugins\Login\Controllers\ResetPassword\ResetPasswordController;
 use Electro\Profiles\WebProfile;
 use Electro\ViewEngine\Config\ViewEngineSettings;
 use Psr\Http\Message\ResponseInterface;
@@ -21,60 +22,64 @@ use Electro\Plugins\Login\Services\DefaultUser;
 
 class LoginModule implements ModuleInterface, RequestHandlerInterface
 {
-    /** @var AuthenticationSettings */
-    private $authenticationSettings;
-    /**
-     * @var LoginSettings
-     */
-    private $loginSettings;
-    /** @var RouterInterface */
-    private $router;
+  /** @var AuthenticationSettings */
+  private $authenticationSettings;
+  /**
+   * @var LoginSettings
+   */
+  private $loginSettings;
+  /** @var RouterInterface */
+  private $router;
 
-    public function __construct(AuthenticationSettings $authenticationSettings, RouterInterface $router, LoginSettings $loginSettings)
-    {
-        $this->router = $router;
-        $this->authenticationSettings = $authenticationSettings;
-        $this->loginSettings = $loginSettings;
-    }
+  public function __construct(AuthenticationSettings $authenticationSettings, RouterInterface $router, LoginSettings $loginSettings)
+  {
+    $this->router = $router;
+    $this->authenticationSettings = $authenticationSettings;
+    $this->loginSettings = $loginSettings;
+  }
 
-    static function getCompatibleProfiles()
-    {
-        return [WebProfile::class];
-    }
+  static function getCompatibleProfiles()
+  {
+    return [WebProfile::class];
+  }
 
-    static function startUp(KernelInterface $kernel, ModuleInfo $moduleInfo)
-    {
-        $kernel
-            ->onRegisterServices(
-                function (InjectorInterface $injector) {
-                    $injector->share(LoginSettings::class);
-                })
-            //
-            ->onConfigure(
-                function (LocalizationSettings $localizationSettings, ViewEngineSettings $viewEngineSettings,
-                          ApplicationRouterInterface $applicationRouter, AuthenticationSettings $authSettings, NavigationSettings $navigationSettings
-                ) use ($moduleInfo) {
-                    $localizationSettings->registerTranslations($moduleInfo);
-                    $viewEngineSettings->registerViews($moduleInfo);
-                    $viewEngineSettings->registerViewModelsNamespace(\Electro\Plugins\Login\ViewModels::class);
-                    $applicationRouter->add(self::class, 'login', 'platform');
-                    $authSettings->userModel(DefaultUser::class);
-                    $navigationSettings->registerNavigation (Navigation::class);
-                });
-    }
+  static function startUp(KernelInterface $kernel, ModuleInfo $moduleInfo)
+  {
+    $kernel
+      ->onRegisterServices(
+        function (InjectorInterface $injector) {
+          $injector->share(LoginSettings::class);
+        })
+      //
+      ->onConfigure(
+        function (LocalizationSettings $localizationSettings, ViewEngineSettings $viewEngineSettings,
+                  ApplicationRouterInterface $applicationRouter, AuthenticationSettings $authSettings, NavigationSettings $navigationSettings
+        ) use ($moduleInfo) {
+          $localizationSettings->registerTranslations($moduleInfo);
+          $viewEngineSettings->registerViews($moduleInfo);
+          $viewEngineSettings->registerViewModelsNamespace(\Electro\Plugins\Login\ViewModels::class);
+          $applicationRouter->add(self::class, 'login', 'platform');
+          $authSettings->userModel(DefaultUser::class);
+          $navigationSettings->registerNavigation(Navigation::class);
+        });
+  }
 
-    function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
-    {
-        $auth = $this->authenticationSettings;
-        return $this->router
-            ->set([
-                $auth->urlPrefix() . '...' => [
-                    $auth->loginFormUrl() => page('login/login.html', controller($this->loginSettings->controller)),
-                    'register' => page('register/register.html'),
-                    'recoverpassword' => page('recoverpassword/recoverpassword.html', controller([LoginController::class,'forgotPassword']))
-                ],
-            ])
-            ->__invoke($request, $response, $next);
-    }
+  function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
+  {
+    $auth = $this->authenticationSettings;
+    return $this->router
+      ->add([
+        $auth->urlPrefix() . '...' => [
+          $auth->loginFormUrl() => page('login/login.html', controller($this->loginSettings->controller)),
+          'register' => page('register/register.html'),
+          'resetpassword' => page('resetPassword/resetPassword.html', controller([LoginController::class, 'forgotPassword']))
+        ],
+        'resetpassword/@token' => [
+          injectableHandler([ResetPasswordController::class, 'validateToken']),
+          page('resetPassword/newPassword.html', controller([ResetPasswordController::class, 'resetPassword']))
+        ]
+      ])
+      ->__invoke($request, $response, $next);
+  }
 
 }

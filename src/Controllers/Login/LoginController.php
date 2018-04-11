@@ -3,11 +3,17 @@
 namespace Electro\Plugins\Login\Controllers\Login;
 
 use Electro\Authentication\Exceptions\AuthenticationException;
+use Electro\Exceptions\FlashType;
 use Electro\Interfaces\Http\RedirectionInterface;
+use Electro\Interfaces\Navigation\NavigationInterface;
 use Electro\Interfaces\SessionInterface;
 use Electro\Interfaces\UserInterface;
-use Electro\Plugins\Login\Utils\SendEmail;
+use Electro\Kernel\Config\KernelSettings;
+use Electro\Plugins\Login\Services\DefaultUser;
+use PhpKit\ExtPDO\Interfaces\ConnectionsInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Swift_Mailer;
+use Swift_Message;
 
 class LoginController
 {
@@ -17,6 +23,29 @@ class LoginController
   private $session;
   /** @var UserInterface */
   private $user;
+  /** @var Swift_Mailer */
+  private $mailer;
+
+  private $db;
+  /**
+   * @var KernelSettings
+   */
+  private $kernelSettings;
+  /**
+   * @var NavigationInterface
+   */
+  private $navigation;
+
+  function __construct(SessionInterface $session, UserInterface $user, RedirectionInterface $redirection, \Swift_Mailer $mailer, ConnectionsInterface $connections, KernelSettings $kernelSettings, NavigationInterface $navigation)
+  {
+    $this->session = $session;
+    $this->user = $user;
+    $this->redirection = $redirection;
+    $this->mailer = $mailer;
+    $this->db = $connections->get()->getPdo();
+    $this->kernelSettings = $kernelSettings;
+    $this->navigation = $navigation;
+  }
 
   /**
    * Attempts to log in the user with the given credentials.
@@ -44,13 +73,6 @@ class LoginController
     }
   }
 
-  function __construct(SessionInterface $session, UserInterface $user, RedirectionInterface $redirection)
-  {
-    $this->session = $session;
-    $this->user = $user;
-    $this->redirection = $redirection;
-  }
-
   function onSubmit($data, ServerRequestInterface $request)
   {
     $redirect = $this->redirection->setRequest($request);
@@ -63,35 +85,52 @@ class LoginController
     return $redirect->intended($request->getAttribute('baseUri'));
   }
 
-
   function forgotPassword($data, ServerRequestInterface $request)
   {
     $redirect = $this->redirection->setRequest($request);
-    $session = $this->session;
 
-    try {
-      if (empty($data['email'])) {
-        throw new AuthenticationException(AuthenticationException::MISSING_EMAIL);
-      }
-      //return $redirect->intended($request->getAttribute('baseUri'));
-    } catch (AuthenticationException $e) {
-      $session->flashInput($data);
-      $session->flashMessage($e->getMessage());
-      $session->reflashPreviousUrl();
-      return $redirect->refresh();
+    if (empty($data['email'])) {
+      throw new AuthenticationException('RECOVERPASS_MISSINGEMAIL_INPUT');
     }
 
-    //gerar link de recup senha com token guardado na tabela de users
+    $user = $this->db->select('SELECT * FROM ' . DefaultUser::usersTableName . ' WHERE email = ?', [$data['email']])->fetchObject();
+    if (!$user)
+      throw new AuthenticationException('$RECOVERPASS_MISSINGEMAIL');
+    else {
+
+      $token = bin2hex(openssl_random_pseudo_bytes(16));
+
+      $this->db->exec('UPDATE ' . DefaultUser::usersTableName . ' SET rememberToken = ? WHERE id = ?;', [$token, $user->id]);
+    }
+
+    // TODO gerar link de recup senha com token guardado na tabela de users
+
+    $url = $this->kernelSettings->baseUrl;
+    $url2 = $this->navigation['resetPassword'];
 
     $sSubject = 'Recuperação de Senha';
     $sBody = <<<HTML
 <p>Recebemos um pedido para recuperar a sua senha, por favor clique no link em baixo.</p>
 <p>
-      <a>Recuperar Password</a>
+      <a href="$url/$url2$token">Recuperar Password</a>
 </p>
 HTML;
 
-    new SendEmail($sSubject, $sBody, $data['email']);
+    $oMessage = Swift_Message::newInstance($sSubject, $sBody);
+
+    $oMessage->setFrom([env('EMAIL_SENDER_ADDR') => env('EMAIL_SENDER_NAME')])
+      ->setTo($data['email'])
+      ->setBody($sBody)
+      ->setContentType('text/html');
+
+    $result = $this->mailer->send($oMessage);
+
+    if ($result == 1) {
+      $this->session->flashMessage('$RECOVERPASS_SUCCESS_EMAIL', FlashType::SUCCESS);
+      return $redirect->refresh();
+    }
+    $this->session->flashMessage('$RECOVERPASS_SUCCESS_EMAIL', FlashType::ERROR);
+    return $redirect->refresh();
   }
 }
 
