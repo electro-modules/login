@@ -1,12 +1,11 @@
 <?php
 
-namespace Electro\Plugins\Login\ViewModels\Login;
+namespace Electro\Plugins\Login\ViewModels\Register;
 
 use Electro\Interfaces\SessionInterface;
 use Electro\Interop\ViewModel;
-use Electro\Plugins\Login\Config\LoginSettings;
 
-class Login extends ViewModel
+class Register extends ViewModel
 {
   /** @var SessionInterface */
   private $session;
@@ -23,9 +22,12 @@ class Login extends ViewModel
     $session->reflashPreviousUrl();
 
     $this->set([
+      'realName' => $session->getOldInput('realName'),
       'username' => $session->getOldInput('username'),
       'password' => $session->getOldInput('password'),
+      'password2' => $session->getOldInput('password2'),
       'lang' => $session->getOldInput('lang'),
     ]);
   }
+
 }

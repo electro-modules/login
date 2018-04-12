@@ -19,18 +19,18 @@
                 <h4>$REGISTER_PROMPT</h4>
                 <form method="POST" action="">
                     <div class="form-group has-feedback">
-                        <label for="username">$REGISTER_REALNAME</label>
+                        <label for="realName">$REGISTER_REALNAME</label>
                         <input name="realName"
                                id="realName"
                                type="text"
                                class="form-control"
                                tabindex=1
                                value="{realName}"
-                               {realName|else 'autofocus'}>
+                               {realName|else 'autofocus'} >
                         <span class="glyphicon glyphicon-user form-control-feedback"></span>
                     </div>
                     <div class="form-group has-feedback">
-                        <label for="username">$LOGIN_USERNAME</label>
+                        <label for="username">$LOGIN_EMAIL</label>
                         <input name="username"
                                id="username"
                                type="text"
@@ -41,14 +41,25 @@
                         <span class="glyphicon glyphicon-user form-control-feedback"></span>
                     </div>
                     <div class="form-group has-feedback">
-                        <label for="password">$LOGIN_PASSWORD</label>
+                        <label for="password">$REGISTER_PASSWORD</label>
                         <input name="password"
                                id="password"
                                type="password"
                                class="form-control"
                                tabindex=2
                                value="{password}"
-                               {username|then 'autofocus'}>
+                               {password|else 'autofocus'}>
+                        <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                    </div>
+                    <div class="form-group has-feedback">
+                        <label for="password2">$REGISTER_PASSWORD2</label>
+                        <input name="password2"
+                               id="password2"
+                               type="password"
+                               class="form-control"
+                               tabindex=2
+                               value="{password2}"
+                               {password2|else 'autofocus'}>
                         <span class="glyphicon glyphicon-lock form-control-feedback"></span>
                     </div>
                     <div class="row">

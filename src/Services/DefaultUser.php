@@ -22,6 +22,7 @@ class DefaultUser implements UserInterface
 
     private $db;
     const usersTableName = 'users';
+    const defaultUserRole = 1;
 
     static $INSPECTABLE = ['active', 'id', 'lastLogin', 'realName', 'registrationDate', 'role', 'token', 'email', 'password'];
 
