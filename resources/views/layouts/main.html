@@ -1,3 +1,4 @@
+<Import service="Electro\Plugins\Login\Config\LoginSettings" as="settings"/>
 <Content of=body preRender>
   {#statusMessage|*}
   <!-- Put your main layout's design here... -->
@@ -5,4 +6,4 @@
   <!-- ...and here, wrapping the page's main content. -->
 </Content>
 
-<Include view="layouts/master.html"/>
+<Include view="{settings.masterLayout}"/>

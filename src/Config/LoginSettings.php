@@ -69,4 +69,6 @@ class LoginSettings
    */
 
   public $varEmailOnLogin = 'username';
+
+  public $masterLayout = 'layouts/master.html';
 }
