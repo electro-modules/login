@@ -1,6 +1,6 @@
 <?php
 
-namespace Electro\Plugins\Login\Controllers\Login;
+namespace Electro\Plugins\Login\Controllers;
 
 use Electro\Authentication\Exceptions\AuthenticationException;
 use Electro\Exceptions\FlashType;
@@ -25,8 +25,6 @@ class LoginController
   private $user;
   /** @var Swift_Mailer */
   private $mailer;
-
-  private $db;
   /**
    * @var KernelSettings
    */
@@ -46,7 +44,6 @@ class LoginController
     $this->user = $user;
     $this->redirection = $redirection;
     $this->mailer = $mailer;
-    $this->db = $connections->get()->getPdo();
     $this->kernelSettings = $kernelSettings;
     $this->navigation = $navigation;
     $this->loginSettings = $loginSettings;
@@ -91,24 +88,26 @@ class LoginController
     return $redirect->intended($request->getAttribute('baseUri'));
   }
 
-  function forgotPassword($data, ServerRequestInterface $request)
+  function forgotPassword($data)
   {
-    $redirect = $this->redirection->setRequest($request);
-
     if (empty($data['email']))
       throw new AuthenticationException('$RECOVERPASS_MISSINGEMAIL_INPUT');
     else if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) throw new AuthenticationException('$RECOVERPASS_ERROR_VALIDATE_EMAIL', FlashType::ERROR);
 
-    $user = $this->db->select('SELECT * FROM ' . $this->loginSettings->usersTableName . ' WHERE email = ?', [$data['email']])->fetchObject();
-    if (!$user)
-      throw new AuthenticationException('$RECOVERPASS_MISSINGEMAIL');
+    if (!$this->user->findByEmail($data['email'])) throw new AuthenticationException('$RECOVERPASS_MISSINGEMAIL');
     else {
-
-      if ($user->active == 0) throw new AuthenticationException('$LOGIN_DISABLED', FlashType::ERROR);
+      $this->user->findByEmail($data['email']);
+      $id = $this->user->idField();
+      if ($this->user->activeField() == 0) throw new AuthenticationException('$LOGIN_DISABLED', FlashType::ERROR);
       $token = bin2hex(openssl_random_pseudo_bytes(16));
-      $this->db->exec('UPDATE ' . $this->loginSettings->usersTableName . ' SET rememberToken = ? WHERE id = ?;', [$token, $user->id]);
+      $this->user->updateRememberToken($token,$id);
+      $r = $this->sendResetPasswordEmail($data['email'],$token);
+      if ($r) return $r;
+      return redirectTo('login');
     }
+  }
 
+  private function sendResetPasswordEmail($emailTo, $token){
     $url = $this->kernelSettings->baseUrl;
     $url2 = $this->navigation['resetPassword'];
 
@@ -123,18 +122,17 @@ HTML;
     $oMessage = Swift_Message::newInstance($sSubject, $sBody);
 
     $oMessage->setFrom([env('EMAIL_SENDER_ADDR') => env('EMAIL_SENDER_NAME')])
-      ->setTo($data['email'])
+      ->setTo($emailTo)
       ->setBody($sBody)
       ->setContentType('text/html');
 
     $result = $this->mailer->send($oMessage);
 
     if ($result == 1) {
-      $this->session->flashMessage('$RECOVERPASS_SUCCESS_EMAIL', FlashType::SUCCESS);
-      return $redirect->refresh();
+      return $this->session->flashMessage('$RECOVERPASS_SUCCESS_EMAIL', FlashType::SUCCESS);
     }
-    $this->session->flashMessage('$RECOVERPASS_ERROR_EMAIL', FlashType::ERROR);
-    return $redirect->refresh();
+    throw new AuthenticationException('$RECOVERPASS_ERROR_EMAIL', FlashType::ERROR);
   }
+
 }
 

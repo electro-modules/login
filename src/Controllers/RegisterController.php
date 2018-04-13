@@ -1,6 +1,6 @@
 <?php
 
-namespace Electro\Plugins\Login\Controllers\Register;
+namespace Electro\Plugins\Login\Controllers;
 
 use Electro\Authentication\Exceptions\AuthenticationException;
 use Electro\Exceptions\FlashType;
@@ -10,7 +10,6 @@ use Electro\Interfaces\SessionInterface;
 use Electro\Interfaces\UserInterface;
 use Electro\Kernel\Config\KernelSettings;
 use Electro\Plugins\Login\Config\LoginSettings;
-use PhpKit\ExtPDO\Interfaces\ConnectionsInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Swift_Mailer;
@@ -26,8 +25,6 @@ class RegisterController
   private $user;
   /** @var Swift_Mailer */
   private $mailer;
-
-  private $db;
   /**
    * @var KernelSettings
    */
@@ -41,13 +38,12 @@ class RegisterController
    */
   private $loginSettings;
 
-  function __construct(SessionInterface $session, UserInterface $user, RedirectionInterface $redirection, \Swift_Mailer $mailer, ConnectionsInterface $connections, KernelSettings $kernelSettings, NavigationInterface $navigation, LoginSettings $loginSettings)
+  function __construct(SessionInterface $session, UserInterface $user, RedirectionInterface $redirection, \Swift_Mailer $mailer, KernelSettings $kernelSettings, NavigationInterface $navigation, LoginSettings $loginSettings)
   {
     $this->session = $session;
     $this->user = $user;
     $this->redirection = $redirection;
     $this->mailer = $mailer;
-    $this->db = $connections->get()->getPdo();
     $this->kernelSettings = $kernelSettings;
     $this->navigation = $navigation;
     $this->loginSettings = $loginSettings;
@@ -55,8 +51,6 @@ class RegisterController
 
   function onSubmit($data, ServerRequestInterface $request, ResponseInterface $response)
   {
-    $redirect = $this->redirection->setRequest($request);
-
     $session = $this->session;
 
     if (isset($data['lang']))
@@ -66,31 +60,22 @@ class RegisterController
 
     if ($r) return $r;
 
-    else {
-      $newPassword = password_hash($data['password'], PASSWORD_BCRYPT);
-      $now = date("Y-m-d h:i:s");
+    $token = bin2hex(openssl_random_pseudo_bytes(16));
+    $data['token'] = $token;
 
-      $user = $this->db->select('SELECT * FROM ' . $this->loginSettings->usersTableName . ' WHERE email = ?', [$data['username']])->fetchObject();
-      if ($user) throw new AuthenticationException('$REGISTER_ERROR_EMAIL_NOTUNIQUE', FlashType::ERROR);
+    $this->user->registerUser($data);
 
-      else {
-        $token = bin2hex(openssl_random_pseudo_bytes(16));
+    $return = $this->sendActivationEmail($data['email'], $token);
+    if ($return) return $return;
 
-        $this->db->exec('INSERT INTO ' . $this->loginSettings->usersTableName . ' (created_at,updated_at,email,password,realName, registrationDate,role,active,rememberToken) VALUES(?,?,?,?,?,?,?,?,?);', [$now, $now, $data['username'], $newPassword, $data['realName'], $now, UserInterface::USER_ROLE_STANDARD, 0, $token]);
-
-        $return = $this->sendActivationEmail($data['username'], $token);
-        if ($return) return $return;
-
-        return redirectTo('login');
-      }
-    }
+    return redirectTo('login');
   }
 
-  private function validateData($data)
+  protected function validateData($data)
   {
     if (empty($data['realName']))
       throw new AuthenticationException('$REGISTER_MISSING_INFO', FlashType::WARNING);
-    else if (empty($data['username']))
+    else if (empty($data['email']))
       throw new AuthenticationException('$REGISTER_MISSING_INFO', FlashType::WARNING);
     else if (empty($data['password']))
       throw new AuthenticationException('$REGISTER_MISSING_INFO', FlashType::WARNING);
@@ -98,11 +83,13 @@ class RegisterController
       throw new AuthenticationException('$REGISTER_MISSING_INFO', FlashType::WARNING);
     else if ($data['password'] != $data['password2'])
       throw new AuthenticationException('$REGISTER_ERROR_PASS', FlashType::WARNING);
-    else if (!filter_var($data['username'], FILTER_VALIDATE_EMAIL))
+    else if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL))
       throw new AuthenticationException('$REGISTER_ERROR_VALIDATE_EMAIL', FlashType::WARNING);
+    else if ($this->user->findByEmail($data['email'])) throw new AuthenticationException('$REGISTER_ERROR_EMAIL_NOTUNIQUE', FlashType::ERROR);
   }
 
-  private function sendActivationEmail($emailTo, $token){
+  private function sendActivationEmail($emailTo, $token)
+  {
     $url = $this->kernelSettings->baseUrl;
     $url2 = $this->navigation['activateUser'];
 
@@ -125,10 +112,8 @@ HTML;
 
     if ($result == 1) {
       return $this->session->flashMessage('$ACTIVATEUSER_EMAILACTIVATION', FlashType::SUCCESS);
-    }
-    else
-    {
-      $this->db->exec('DELETE FROM ' . $this->loginSettings->usersTableName . ' WHERE email = ?', [$data['username']]);
+    } else {
+      $this->user->removeByEmail($emailTo);
       throw new AuthenticationException('$ACTIVATEUSER_EMAILACTIVATION_ERROR', FlashType::ERROR);
     }
   }

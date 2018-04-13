@@ -1,7 +1,9 @@
 <?php
 namespace Electro\Plugins\Login\Config;
 
-use Electro\Plugins\Login\Controllers\Login\LoginController;
+use Electro\Plugins\Login\Controllers\LoginController;
+use Electro\Plugins\Login\Controllers\RegisterController;
+use Electro\Plugins\Login\Controllers\ResetPasswordController;
 
 /**
  * Configuration settings for the LoginForms module.
@@ -13,12 +15,16 @@ class LoginSettings
    */
   public $title;
 
-  public $controller = [LoginController::class,'onSubmit'];
+  public $loginController = LoginController::class;
+
+  public $registerController = RegisterController::class;
+
+  public $resetPasswordController = ResetPasswordController::class;
 
   /**
    * @var string Activation of account by administrator or not
    */
-  public $newAccountsRequireApproval = true;
+  public $newAccountsRequireApproval = false;
 
   /**
    * @var string Admin email that will activate account, If empty do not send email to admin

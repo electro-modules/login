@@ -12,9 +12,6 @@ use Electro\Interfaces\ModuleInterface;
 use Electro\Kernel\Lib\ModuleInfo;
 use Electro\Localization\Config\LocalizationSettings;
 use Electro\Navigation\Config\NavigationSettings;
-use Electro\Plugins\Login\Controllers\Login\LoginController;
-use Electro\Plugins\Login\Controllers\Register\RegisterController;
-use Electro\Plugins\Login\Controllers\ResetPassword\ResetPasswordController;
 use Electro\Profiles\WebProfile;
 use Electro\ViewEngine\Config\ViewEngineSettings;
 use Psr\Http\Message\ResponseInterface;
@@ -72,25 +69,25 @@ class LoginModule implements ModuleInterface, RequestHandlerInterface
 
     $array = [
       $auth->urlPrefix() . '...' => [
-        $auth->loginFormUrl() => page('login/login.html', controller($this->loginSettings->controller)),
+        $auth->loginFormUrl() => page('login/login.html', controller([$this->loginSettings->loginController, 'onSubmit'])),
       ],
     ];
 
     if ($loginSettings->routeRegisterOnOff) {
-      $array[$auth->urlPrefix() . '...'][$loginSettings->routeRegister] = page('register/register.html', controller([RegisterController::class, 'onSubmit']));
+      $array[$auth->urlPrefix() . '...'][$loginSettings->routeRegister] = page('register/register.html', controller([$this->loginSettings->registerController, 'onSubmit']));
     }
 
     if ($loginSettings->routeResetPasswordOnOff){
-      $array[$auth->urlPrefix() . '...'][$loginSettings->routeResetPassword] = page('resetPassword/resetPassword.html', controller([LoginController::class, 'forgotPassword']));
+      $array[$auth->urlPrefix() . '...'][$loginSettings->routeResetPassword] = page('resetPassword/resetPassword.html', controller([$this->loginSettings->loginController, 'forgotPassword']));
       $array[$auth->urlPrefix() . '...'][$loginSettings->routeResetPasswordToken] = [
-        injectableHandler([ResetPasswordController::class, 'validateToken']),
-        page('resetPassword/newPassword.html', controller([ResetPasswordController::class, 'resetPassword']))
+        injectableHandler([$this->loginSettings->resetPasswordController, 'validateToken']),
+        page('resetPassword/newPassword.html', controller([$this->loginSettings->resetPasswordController, 'resetPassword']))
       ];
     }
 
     if ($loginSettings->routeActivateUserOnOff){
       $array[$auth->urlPrefix() . '...'][$loginSettings->routeActivateUserToken] = [
-        injectableHandler([ResetPasswordController::class, 'validateToken']),
+        injectableHandler([$this->loginSettings->resetPasswordController, 'validateToken']),
         page('activateUser/activateUser.html')
       ];
     }
@@ -98,7 +95,7 @@ class LoginModule implements ModuleInterface, RequestHandlerInterface
     if ($loginSettings->routeAdminActivateUserOnOff)
     {
       $array[$auth->urlPrefix() . '...'][$loginSettings->routeAdminActivateUserToken] = [
-        injectableHandler([ResetPasswordController::class, 'validateToken']),
+        injectableHandler([$this->loginSettings->resetPasswordController, 'validateToken']),
         page('activateUser/adminActivateUser.html')
       ];
     }
