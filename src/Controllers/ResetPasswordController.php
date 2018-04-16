@@ -43,18 +43,17 @@ class ResetPasswordController
 
   function resetPassword($data, $token, ServerRequestInterface $request)
   {
-    $password = $data['password'];
-    $password2 = $data['password2'];
+    $password = get($data,'password');
+    $password2 = get($data,'password2');
 
     if (empty($password) || empty($password2))
       throw new AuthenticationException('$RESETPASSWORD_MISSINGINFO', FlashType::ERROR);
 
     if ($password == $password2) {
-      $newPassword = password_hash($password, PASSWORD_BCRYPT);
-
       if ($this->user->findByRememberToken($token)) {
-        $id = $this->user->idField();
-        $this->user->resetPassword($newPassword, $id);
+        $this->user->passwordField($password);
+        $this->user->tokenField("");
+        $this->user->submit();
         $this->session->flashMessage('$RESETPASSWORD_SUCCESS_PASS', FlashType::SUCCESS);
         return redirectTo('login');
       }

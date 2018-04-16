@@ -80,34 +80,33 @@ class LoginController
     $redirect = $this->redirection->setRequest($request);
     $session = $this->session;
     $loginSettings = $this->loginSettings;
+    $session->setLang(get($data, 'lang'));
 
-    if (isset($data['lang']))
-      $session->setLang($data['lang']);
-
-    $this->doLogin($data[$loginSettings->varEmailOnLogin], $data['password']);
+    $this->doLogin(get($data, $loginSettings->varEmailOnLogin), get($data, 'password'));
     return $redirect->intended($request->getAttribute('baseUri'));
   }
 
   function forgotPassword($data)
   {
-    if (empty($data['email']))
+    if (empty(get($data, 'email')))
       throw new AuthenticationException('$RECOVERPASS_MISSINGEMAIL_INPUT');
-    else if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) throw new AuthenticationException('$RECOVERPASS_ERROR_VALIDATE_EMAIL', FlashType::ERROR);
+    else if (!filter_var(get($data, 'email'), FILTER_VALIDATE_EMAIL)) throw new AuthenticationException('$RECOVERPASS_ERROR_VALIDATE_EMAIL', FlashType::ERROR);
 
-    if (!$this->user->findByEmail($data['email'])) throw new AuthenticationException('$RECOVERPASS_MISSINGEMAIL');
+    if (!$this->user->findByEmail(get($data, 'email'))) throw new AuthenticationException('$RECOVERPASS_MISSINGEMAIL');
     else {
-      $this->user->findByEmail($data['email']);
-      $id = $this->user->idField();
+      $this->user->findByEmail(get($data, 'email'));
       if ($this->user->activeField() == 0) throw new AuthenticationException('$LOGIN_DISABLED', FlashType::ERROR);
       $token = bin2hex(openssl_random_pseudo_bytes(16));
-      $this->user->updateRememberToken($token,$id);
-      $r = $this->sendResetPasswordEmail($data['email'],$token);
+      $this->user->tokenField($token);
+      $this->user->submit();
+      $r = $this->sendResetPasswordEmail(get($data, 'email'), $token);
       if ($r) return $r;
       return redirectTo('login');
     }
   }
 
-  private function sendResetPasswordEmail($emailTo, $token){
+  private function sendResetPasswordEmail($emailTo, $token)
+  {
     $url = $this->kernelSettings->baseUrl;
     $url2 = $this->navigation['resetPassword'];
 

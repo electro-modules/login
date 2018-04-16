@@ -25,6 +25,7 @@
                                type="text"
                                class="form-control"
                                tabindex=1
+                               maxlength="30"
                                value="{realName}"
                                {realName|else 'autofocus'} >
                         <span class="glyphicon glyphicon-user form-control-feedback"></span>
@@ -36,6 +37,7 @@
                                type="text"
                                class="form-control"
                                tabindex=1
+                               maxlength="100"
                                value="{email}"
                                {email|else 'autofocus'}>
                         <span class="glyphicon glyphicon-user form-control-feedback"></span>
@@ -47,6 +49,7 @@
                                type="password"
                                class="form-control"
                                tabindex=2
+                               maxlength="60"
                                value="{password}"
                                {password|else 'autofocus'}>
                         <span class="glyphicon glyphicon-lock form-control-feedback"></span>
@@ -58,6 +61,7 @@
                                type="password"
                                class="form-control"
                                tabindex=2
+                               maxlength="60"
                                value="{password2}"
                                {password2|else 'autofocus'}>
                         <span class="glyphicon glyphicon-lock form-control-feedback"></span>

@@ -54,7 +54,9 @@ class ActivateUser extends ViewModel
 
     if ($adminAprovation == false) {
       if ($this->user->findByRememberToken($token)) {
-        $this->user->setActive($token);
+        $this->user->activeField(1);
+        $this->user->tokenField("");
+        $this->user->submit();
       }
       $this->set([
         'activateUser' => '$ACTIVATEUSER_SUCCESS']);
@@ -77,10 +79,9 @@ class ActivateUser extends ViewModel
     $url = $this->kernelSettings->baseUrl;
     $url2 = $this->navigation['adminActivateUser'];
 
-    $user = $this->user->getUserByRememberToken($token);
-
-    $realName = $user->realName;
-    $email = $user->email;
+    $this->user->findByRememberToken($token);
+    $realName = $this->user->realNameField();
+    $email = $this->user->emailField();
 
     $sSubject = 'Ativação de Nova Conta de Utilizador';
     $sBody = <<<HTML

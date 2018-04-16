@@ -52,9 +52,7 @@ class RegisterController
   function onSubmit($data, ServerRequestInterface $request, ResponseInterface $response)
   {
     $session = $this->session;
-
-    if (isset($data['lang']))
-      $session->setLang($data['lang']);
+    $session->setLang(get($data, 'lang'));
 
     $r = $this->validateData($data, $request);
 
@@ -63,9 +61,10 @@ class RegisterController
     $token = bin2hex(openssl_random_pseudo_bytes(16));
     $data['token'] = $token;
 
-    $this->user->registerUser($data);
+    $this->user->setRecord($data);
+    $this->user->submit();
 
-    $return = $this->sendActivationEmail($data['email'], $token);
+    $return = $this->sendActivationEmail(get($data, 'email'), $token);
     if ($return) return $return;
 
     return redirectTo('login');
@@ -73,19 +72,19 @@ class RegisterController
 
   protected function validateData($data)
   {
-    if (empty($data['realName']))
+    if (empty(get($data, 'realName')))
       throw new AuthenticationException('$REGISTER_MISSING_INFO', FlashType::WARNING);
-    else if (empty($data['email']))
+    else if (empty(get($data, 'email')))
       throw new AuthenticationException('$REGISTER_MISSING_INFO', FlashType::WARNING);
-    else if (empty($data['password']))
+    else if (empty(get($data, 'password')))
       throw new AuthenticationException('$REGISTER_MISSING_INFO', FlashType::WARNING);
-    else if (empty($data['password2']))
+    else if (empty(get($data, 'password2')))
       throw new AuthenticationException('$REGISTER_MISSING_INFO', FlashType::WARNING);
-    else if ($data['password'] != $data['password2'])
+    else if (get($data, 'password') != get($data, 'password2'))
       throw new AuthenticationException('$REGISTER_ERROR_PASS', FlashType::WARNING);
-    else if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL))
+    else if (!filter_var(get($data, 'email'), FILTER_VALIDATE_EMAIL))
       throw new AuthenticationException('$REGISTER_ERROR_VALIDATE_EMAIL', FlashType::WARNING);
-    else if ($this->user->findByEmail($data['email'])) throw new AuthenticationException('$REGISTER_ERROR_EMAIL_NOTUNIQUE', FlashType::ERROR);
+    else if ($this->user->findByEmail(get($data, 'email'))) throw new AuthenticationException('$REGISTER_ERROR_EMAIL_NOTUNIQUE', FlashType::ERROR);
   }
 
   private function sendActivationEmail($emailTo, $token)
@@ -113,7 +112,8 @@ HTML;
     if ($result == 1) {
       return $this->session->flashMessage('$ACTIVATEUSER_EMAILACTIVATION', FlashType::SUCCESS);
     } else {
-      $this->user->removeByEmail($emailTo);
+      $this->user->findByEmail($emailTo);
+      $this->user->remove();
       throw new AuthenticationException('$ACTIVATEUSER_EMAILACTIVATION_ERROR', FlashType::ERROR);
     }
   }

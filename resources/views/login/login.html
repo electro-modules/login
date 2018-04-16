@@ -25,6 +25,7 @@
                                type="text"
                                class="form-control"
                                tabindex=1
+                               maxlength="100"
                                value="{username}"
                                {username|else 'autofocus'}>
                         <span class="glyphicon glyphicon-user form-control-feedback"></span>
@@ -39,6 +40,7 @@
                                type="password"
                                class="form-control"
                                tabindex=2
+                               maxlength="60"
                                value="{password}"
                                onfocus="var temp_value=this.value; this.value=''; this.value=temp_value"
                                {username|then 'autofocus'}>
