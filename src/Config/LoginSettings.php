@@ -39,22 +39,22 @@ class LoginSettings
   /**
    * @var string Defines register user route is active or not
    */
-  public $routeRegisterOnOff = true;
+  public $routeRegisterOnOff = false;
 
   /**
    * @var string Defines reset password route is active or not
    */
-  public $routeResetPasswordOnOff = true;
+  public $routeResetPasswordOnOff = false;
 
   /**
    * @var string Defines activation of user route is active or not
    */
-  public $routeActivateUserOnOff = true;
+  public $routeActivateUserOnOff = false;
 
   /**
    * @var string Defines activation of user by admin route is active or not
    */
-  public $routeAdminActivateUserOnOff = true;
+  public $routeAdminActivateUserOnOff = false;
 
   /*
    * URL configuration
