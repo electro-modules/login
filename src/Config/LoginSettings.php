@@ -29,7 +29,7 @@ class LoginSettings
   /**
    * @var string Admin email that will activate account, If empty do not send email to admin
    */
-  public $approvalAdminEmail = "tiagoelias1999@gmail.com";
+  public $approvalAdminEmail = '';
 
   /**
    * @var string Users table name on your database

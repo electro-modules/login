@@ -3,6 +3,7 @@
 namespace Electro\Plugins\Login\Config;
 
 use Electro\Authentication\Config\AuthenticationSettings;
+use Electro\Authentication\Lib\GenericUser;
 use Electro\Interfaces\DI\InjectorInterface;
 use Electro\Interfaces\Http\RequestHandlerInterface;
 use Electro\Interfaces\Http\RouterInterface;
@@ -57,7 +58,9 @@ class LoginModule implements ModuleInterface, RequestHandlerInterface
           $viewEngineSettings->registerViews($moduleInfo);
           $viewEngineSettings->registerViewModelsNamespace(\Electro\Plugins\Login\ViewModels::class);
           $applicationRouter->add(self::class, 'login', 'platform');
-          $authSettings->userModel(DefaultUser::class);
+          $currentUserModel = $authSettings->userModel();
+          if ($currentUserModel == GenericUser::class)
+            $authSettings->userModel(DefaultUser::class);
           $navigationSettings->registerNavigation(Navigation::class);
         });
   }
