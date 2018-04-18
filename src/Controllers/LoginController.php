@@ -10,7 +10,9 @@ use Electro\Interfaces\SessionInterface;
 use Electro\Interfaces\UserInterface;
 use Electro\Kernel\Config\KernelSettings;
 use Electro\Plugins\Login\Config\LoginSettings;
+use HansOtt\PSR7Cookies\SetCookie;
 use PhpKit\ExtPDO\Interfaces\ConnectionsInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Swift_Mailer;
 use Swift_Message;
@@ -38,15 +40,17 @@ class LoginController
    */
   private $loginSettings;
 
-  function __construct(SessionInterface $session, UserInterface $user, RedirectionInterface $redirection, \Swift_Mailer $mailer, ConnectionsInterface $connections, KernelSettings $kernelSettings, NavigationInterface $navigation, LoginSettings $loginSettings)
+  function __construct (SessionInterface $session, UserInterface $user, RedirectionInterface $redirection,
+                        \Swift_Mailer $mailer, ConnectionsInterface $connections, KernelSettings $kernelSettings,
+                        NavigationInterface $navigation, LoginSettings $loginSettings)
   {
-    $this->session = $session;
-    $this->user = $user;
-    $this->redirection = $redirection;
-    $this->mailer = $mailer;
+    $this->session        = $session;
+    $this->user           = $user;
+    $this->redirection    = $redirection;
+    $this->mailer         = $mailer;
     $this->kernelSettings = $kernelSettings;
-    $this->navigation = $navigation;
-    $this->loginSettings = $loginSettings;
+    $this->navigation     = $navigation;
+    $this->loginSettings  = $loginSettings;
   }
 
   /**
@@ -56,82 +60,97 @@ class LoginController
    * @param string $password
    * @throws AuthenticationException If the login fails.
    */
-  function doLogin($username, $password)
+  function doLogin ($username, $password)
   {
     if (empty($username))
       throw new AuthenticationException ('$LOGIN_MISSING_INFO');
     else {
       $user = $this->user;
-      if (!$user->findByName($username))
+      if (!$user->findByName ($username))
         throw new AuthenticationException ('$LOGIN_UNKNOWN_USER', FlashType::ERROR);
-      else if (!$user->verifyPassword($password))
+      else if (!$user->verifyPassword ($password))
         throw new AuthenticationException ('$LOGIN_WRONG_PASSWORD', FlashType::ERROR);
-      else if (!$user->activeField())
+      else if (!$user->activeField ())
+        throw new AuthenticationException ('$LOGIN_NOTACTIVE');
+      else if (!$user->enabledField ())
         throw new AuthenticationException ('$LOGIN_DISABLED');
       else {
-        $user->onLogin();
-        $this->session->setUser($user);
+        $user->onLogin ();
+        $this->session->setUser ($user);
       }
     }
   }
 
-  function onSubmit($data, ServerRequestInterface $request)
+  function onSubmit ($data, ServerRequestInterface $request, ResponseInterface $response)
   {
-    $redirect = $this->redirection->setRequest($request);
-    $session = $this->session;
+    $redirect      = $this->redirection->setRequest ($request);
+    $session       = $this->session;
     $loginSettings = $this->loginSettings;
-    $session->setLang(get($data, 'lang'));
+    $session->setLang (get ($data, 'lang'));
 
-    $this->doLogin(get($data, $loginSettings->varEmailOnLogin), get($data, 'password'));
-    return $redirect->intended($request->getAttribute('baseUri'));
+    $this->doLogin (get ($data, $loginSettings->varEmailOnLogin), get ($data, 'password'));
+
+    $response = $redirect->intended ($request->getAttribute ('baseUri'));
+
+    if (get ($data, 'remember')) {
+      $cookie =
+        SetCookie::thatStaysForever ($this->kernelSettings->name . "/" . $this->kernelSettings->rememberMeTokenName,
+          $this->user->tokenField (),
+          $request->getAttribute ('baseUri'));
+      return $cookie->addToResponse ($response);
+    }
+    return $response;
   }
 
-  function forgotPassword($data)
+  function forgotPassword ($data)
   {
-    if (empty(get($data, 'email')))
+    if (empty(get ($data, 'email')))
       throw new AuthenticationException('$RECOVERPASS_MISSINGEMAIL_INPUT');
-    else if (!filter_var(get($data, 'email'), FILTER_VALIDATE_EMAIL)) throw new AuthenticationException('$RECOVERPASS_ERROR_VALIDATE_EMAIL', FlashType::ERROR);
+    else if (!filter_var (get ($data, 'email'),
+      FILTER_VALIDATE_EMAIL)
+    ) throw new AuthenticationException('$RECOVERPASS_ERROR_VALIDATE_EMAIL', FlashType::ERROR);
 
-    if (!$this->user->findByEmail(get($data, 'email'))) throw new AuthenticationException('$RECOVERPASS_MISSINGEMAIL');
+    if (!$this->user->findByEmail (get ($data,
+      'email'))
+    ) throw new AuthenticationException('$RECOVERPASS_MISSINGEMAIL');
     else {
-      $this->user->findByEmail(get($data, 'email'));
-      if ($this->user->activeField() == 0) throw new AuthenticationException('$LOGIN_DISABLED', FlashType::ERROR);
-      $token = bin2hex(openssl_random_pseudo_bytes(16));
-      $this->user->tokenField($token);
-      $this->user->submit();
-      $r = $this->sendResetPasswordEmail(get($data, 'email'), $token);
+      $this->user->findByEmail (get ($data, 'email'));
+      if ($this->user->activeField () == 0) throw new AuthenticationException('$LOGIN_DISABLED', FlashType::ERROR);
+      $token = bin2hex (openssl_random_pseudo_bytes (16));
+      $this->user->tokenField ($token);
+      $this->user->submit ();
+      $r = $this->sendResetPasswordEmail (get ($data, 'email'), $token);
       if ($r) return $r;
-      return redirectTo('login');
+      return redirectTo ('login');
     }
   }
 
-  private function sendResetPasswordEmail($emailTo, $token)
+  private function sendResetPasswordEmail ($emailTo, $token)
   {
-    $url = $this->kernelSettings->baseUrl;
+    $url  = $this->kernelSettings->baseUrl;
     $url2 = $this->navigation['resetPassword'];
 
     $sSubject = 'Recuperação de Senha';
-    $sBody = <<<HTML
+    $sBody    = <<<HTML
 <p>Recebemos um pedido para recuperar a sua senha, por favor clique no link em baixo.</p>
 <p>
       <a href="$url/$url2$token">Recuperar Password</a>
 </p>
 HTML;
 
-    $oMessage = Swift_Message::newInstance($sSubject, $sBody);
+    $oMessage = Swift_Message::newInstance ($sSubject, $sBody);
 
-    $oMessage->setFrom([env('EMAIL_SENDER_ADDR') => env('EMAIL_SENDER_NAME')])
-      ->setTo($emailTo)
-      ->setBody($sBody)
-      ->setContentType('text/html');
+    $oMessage->setFrom ([env ('EMAIL_SENDER_ADDR') => env ('EMAIL_SENDER_NAME')])
+             ->setTo ($emailTo)
+             ->setBody ($sBody)
+             ->setContentType ('text/html');
 
-    $result = $this->mailer->send($oMessage);
+    $result = $this->mailer->send ($oMessage);
 
     if ($result == 1) {
-      return $this->session->flashMessage('$RECOVERPASS_SUCCESS_EMAIL', FlashType::SUCCESS);
+      return $this->session->flashMessage ('$RECOVERPASS_SUCCESS_EMAIL', FlashType::SUCCESS);
     }
     throw new AuthenticationException('$RECOVERPASS_ERROR_EMAIL', FlashType::ERROR);
   }
-
 }
 

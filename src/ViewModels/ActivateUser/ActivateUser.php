@@ -53,16 +53,16 @@ class ActivateUser extends ViewModel
     $token = $this['props']['token'];
 
     if ($adminAprovation == false) {
-      if ($this->user->findByRememberToken($token)) {
+      if ($this->user->findByToken($token)) {
         $this->user->activeField(1);
-        $this->user->tokenField("");
+        //$this->user->tokenField("");
         $this->user->submit();
       }
       $this->set([
         'activateUser' => '$ACTIVATEUSER_SUCCESS']);
     } else {
 
-      if ($this->user->findByRememberToken($token)) {
+      if ($this->user->findByToken($token)) {
         $r = $this->sendActivationEmailToAdmin($this->loginSettings->approvalAdminEmail, $token);
 
         if ($r) return $r;
@@ -79,7 +79,7 @@ class ActivateUser extends ViewModel
     $url = $this->kernelSettings->baseUrl;
     $url2 = $this->navigation['adminActivateUser'];
 
-    $this->user->findByRememberToken($token);
+    $this->user->findByToken($token);
     $realName = $this->user->realNameField();
     $email = $this->user->emailField();
 

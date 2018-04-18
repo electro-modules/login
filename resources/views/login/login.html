@@ -7,80 +7,82 @@
 <Content of=bodyAttrs value="class=login-page"/>
 <Content of="body">
 
-    <FlashMessage/>
+  <FlashMessage/>
 
-    <div class="login-container">
-        <div class="login-box" style="opacity:0">
-            <div class="login-box-body">
-                <h1 class="text-info">{app.appName}</h1>
-                <If {settings.title}>
-                    <h3 class="text-info">{settings.title}</h3>
-                </If>
-                <h4>$LOGIN_PROMPT</h4>
-                <form method="POST" action="">
-                    <div class="form-group has-feedback">
-                        <label for="{settings.varEmailOnLogin}">$LOGIN_EMAIL</label>
-                        <input name="{settings.varEmailOnLogin}"
-                               id="{settings.varEmailOnLogin}"
-                               type="text"
-                               class="form-control"
-                               tabindex=1
-                               maxlength="100"
-                               value="{username}"
-                               {username|else 'autofocus'}>
-                        <span class="glyphicon glyphicon-user form-control-feedback"></span>
-                        <If {settings.routeResetPasswordOnOff}>
-                        <a class="remember" href="{navigation.forgotPassword}">$LOGIN_FORGET_PASS</a>
-                        </If>
-                    </div>
-                    <div class="form-group has-feedback">
-                        <label for="password">$LOGIN_PASSWORD</label>
-                        <input name="password"
-                               id="password"
-                               type="password"
-                               class="form-control"
-                               tabindex=2
-                               maxlength="60"
-                               value="{password}"
-                               onfocus="var temp_value=this.value; this.value=''; this.value=temp_value"
-                               {username|then 'autofocus'}>
-                        <span class="glyphicon glyphicon-lock form-control-feedback"></span>
-                        <If {settings.routeRegisterOnOff}>
-                        <a class="remember" href="{navigation.registerUser}">$LOGIN_REGISTER_USER</a>
-                        </If>
-                        <br>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <!--  <input id="remember" type="checkbox" tabindex=3>
-                              <label for="remember">&nbsp;$LOGIN_REMEMBER_ME&nbsp;</label>-->
-                        </div>
-                        <div class="col-sm-6">
-                            <button class="btn-primary btn btn-block with-icon icon-right"
-                                    type="submit"
-                                    tabindex=4>
-                                <i class="fa fa-play-circle"></i> $LOGIN_BUTTON
-                            </button>
-                        </div>
-                    </div>
-                </form>
+  <div class="login-container">
+    <div class="login-box" style="opacity:0">
+      <div class="login-box-body">
+        <h1 class="text-info">{app.appName}</h1>
+        <If {settings.title}>
+          <h3 class="text-info">{settings.title}</h3>
+        </If>
+        <h4>$LOGIN_PROMPT</h4>
+        <form method="POST" action="">
+          <div class="form-group has-feedback">
+            <label for="{settings.varEmailOnLogin}">$LOGIN_EMAIL</label>
+            <input name="{settings.varEmailOnLogin}"
+                   id="{settings.varEmailOnLogin}"
+                   type="text"
+                   class="form-control"
+                   tabindex=1
+                   maxlength="100"
+                   value="{username}"
+                   {username|else
+            'autofocus'}>
+            <span class="glyphicon glyphicon-user form-control-feedback"></span>
+            <If {settings.routeResetPasswordOnOff}>
+              <a class="remember" href="{navigation.forgotPassword}">$LOGIN_FORGET_PASS</a>
+            </If>
+          </div>
+          <div class="form-group has-feedback">
+            <label for="password">$LOGIN_PASSWORD</label>
+            <input name="password"
+                   id="password"
+                   type="password"
+                   class="form-control"
+                   tabindex=2
+                   maxlength="60"
+                   value="{password}"
+                   onfocus="var temp_value=this.value; this.value=''; this.value=temp_value"
+                   {username|then
+            'autofocus'}>
+            <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+            <If {settings.routeRegisterOnOff}>
+              <a class="remember" href="{navigation.registerUser}">$LOGIN_REGISTER_USER</a>
+            </If>
+            <br>
+          </div>
+          <div class="row">
+            <div class="col-sm-6">
+              <If {settings.rememberMeLoggedIn}>
+                <input id="remember" name="remember" type="checkbox" tabindex=3>
+                <label for="remember">&nbsp;$LOGIN_REMEMBER_ME&nbsp;</label>
+              </If>
             </div>
-        </div>
+            <div class="col-sm-6">
+              <button class="btn-primary btn btn-block with-icon icon-right" type="submit" tabindex=4>
+                <i class="fa fa-play-circle"></i> $LOGIN_BUTTON
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
+  </div>
 
-    <Script>
-        window.onload = function () {
-            $('.login-box').fadeTo(200, 1);
-            var i;
-            $('#username').on('keypress', function (ev) {
-                if (!i) {
-                    i = true;
-                    if (ev.keyCode != 13 && $(this).val())
-                        $(this).val('');
-                }
-            });
+  <Script>
+    window.onload = function () {
+      $ ('.login-box').fadeTo (200, 1);
+      var i;
+      $ ('#username').on ('keypress', function (ev) {
+        if (!i) {
+          i = true;
+          if (ev.keyCode != 13 && $ (this).val ())
+            $ (this).val ('');
         }
-    </Script>
+      });
+    }
+  </Script>
 
 </Content>
 

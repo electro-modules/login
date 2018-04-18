@@ -29,9 +29,9 @@ class AdminActivateUser extends ViewModel
   {
     $token = $this['props']['token'];
 
-    if ($this->user->findByRememberToken($token)) {
+    if ($this->user->findByToken($token)) {
       $this->user->activeField(1);
-      $this->user->tokenField("");
+      //$this->user->tokenField("");
       $this->user->submit();
     }
     $this->set([

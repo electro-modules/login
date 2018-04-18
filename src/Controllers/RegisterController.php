@@ -54,7 +54,7 @@ class RegisterController
     $session = $this->session;
     $session->setLang(get($data, 'lang'));
 
-    $r = $this->validateData($data, $request);
+    $r = $this->validateData($data);
 
     if ($r) return $r;
 

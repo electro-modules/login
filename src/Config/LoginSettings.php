@@ -22,7 +22,7 @@ class LoginSettings
   public $resetPasswordController = ResetPasswordController::class;
 
   /**
-   * @var string Activation of account by administrator or not
+   * @var boolean Activation of account by administrator or not
    */
   public $newAccountsRequireApproval = false;
 
@@ -37,24 +37,34 @@ class LoginSettings
   public $usersTableName = "users";
 
   /**
-   * @var string Defines register user route is active or not
+   * @var boolean Defines register user route is active or not
    */
-  public $routeRegisterOnOff = false;
+  public $routeRegisterOnOff = true;
 
   /**
-   * @var string Defines reset password route is active or not
+   * @var boolean Defines reset password route is active or not
    */
-  public $routeResetPasswordOnOff = false;
+  public $routeResetPasswordOnOff = true;
 
   /**
-   * @var string Defines activation of user route is active or not
+   * @var boolean Defines activation of user route is active or not
    */
-  public $routeActivateUserOnOff = false;
+  public $routeActivateUserOnOff = true;
 
   /**
-   * @var string Defines activation of user by admin route is active or not
+   * @var boolean Defines activation of user by admin (route) is active or not
    */
   public $routeAdminActivateUserOnOff = false;
+
+  /**
+   * @var boolean Showing rememberMe (keep signed in) checkbox on login page.
+   */
+  public $rememberMeLoggedIn = true;
+
+  /**
+   * @var boolean Login after reseting password or not.
+   */
+  public $loginAfterResetPassword = true;
 
   /*
    * URL configuration

@@ -4,6 +4,7 @@ namespace Electro\Plugins\Login\Config;
 
 use Electro\Authentication\Config\AuthenticationSettings;
 use Electro\Authentication\Lib\GenericUser;
+use Electro\Authentication\Middleware\AuthenticationMiddleware;
 use Electro\Interfaces\DI\InjectorInterface;
 use Electro\Interfaces\Http\RequestHandlerInterface;
 use Electro\Interfaces\Http\RouterInterface;
@@ -17,7 +18,7 @@ use Electro\Profiles\WebProfile;
 use Electro\ViewEngine\Config\ViewEngineSettings;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Electro\Plugins\Login\Services\DefaultUser;
+use Electro\Plugins\Login\Services\User;
 
 class LoginModule implements ModuleInterface, RequestHandlerInterface
 {
@@ -30,82 +31,88 @@ class LoginModule implements ModuleInterface, RequestHandlerInterface
   /** @var RouterInterface */
   private $router;
 
-  public function __construct(AuthenticationSettings $authenticationSettings, RouterInterface $router, LoginSettings $loginSettings)
+  public function __construct (AuthenticationSettings $authenticationSettings, RouterInterface $router,
+                               LoginSettings $loginSettings)
   {
-    $this->router = $router;
+    $this->router                 = $router;
     $this->authenticationSettings = $authenticationSettings;
-    $this->loginSettings = $loginSettings;
+    $this->loginSettings          = $loginSettings;
   }
 
-  static function getCompatibleProfiles()
+  static function getCompatibleProfiles ()
   {
     return [WebProfile::class];
   }
 
-  static function startUp(KernelInterface $kernel, ModuleInfo $moduleInfo)
+  static function startUp (KernelInterface $kernel, ModuleInfo $moduleInfo)
   {
     $kernel
-      ->onRegisterServices(
+      ->onRegisterServices (
         function (InjectorInterface $injector) {
-          $injector->share(LoginSettings::class);
+          $injector->share (LoginSettings::class);
         })
       //
-      ->onConfigure(
+      ->onConfigure (
         function (LocalizationSettings $localizationSettings, ViewEngineSettings $viewEngineSettings,
-                  ApplicationRouterInterface $applicationRouter, AuthenticationSettings $authSettings, NavigationSettings $navigationSettings
+                  ApplicationRouterInterface $applicationRouter, AuthenticationSettings $authSettings,
+                  NavigationSettings $navigationSettings
         ) use ($moduleInfo) {
-          $localizationSettings->registerTranslations($moduleInfo);
-          $viewEngineSettings->registerViews($moduleInfo);
-          $viewEngineSettings->registerViewModelsNamespace(\Electro\Plugins\Login\ViewModels::class);
-          $applicationRouter->add(self::class, 'login', 'platform');
-          $currentUserModel = $authSettings->userModel();
+          $localizationSettings->registerTranslations ($moduleInfo);
+          $viewEngineSettings->registerViews ($moduleInfo);
+          $viewEngineSettings->registerViewModelsNamespace (\Electro\Plugins\Login\ViewModels::class);
+          $applicationRouter->add (self::class, 'login', 'platform');
+          $currentUserModel = $authSettings->userModel ();
           if ($currentUserModel == GenericUser::class)
-            $authSettings->userModel(DefaultUser::class);
-          $navigationSettings->registerNavigation(Navigation::class);
+            $authSettings->userModel (User::class);
+          $navigationSettings->registerNavigation (Navigation::class);
         });
   }
 
-  function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next)
+  function __invoke (ServerRequestInterface $request, ResponseInterface $response, callable $next)
   {
-    $auth = $this->authenticationSettings;
+    $auth          = $this->authenticationSettings;
     $loginSettings = $this->loginSettings;
 
     $array = [
-      $auth->urlPrefix() . '...' => [
-        $auth->loginFormUrl() => page('login/login.html', controller([$this->loginSettings->loginController, 'onSubmit'])),
+      $auth->urlPrefix () . '...' => [
+        $auth->loginFormUrl () => page ('login/login.html',
+          controller ([$this->loginSettings->loginController, 'onSubmit'])),
       ],
     ];
 
     if ($loginSettings->routeRegisterOnOff) {
-      $array[$auth->urlPrefix() . '...'][$loginSettings->routeRegister] = page('register/register.html', controller([$this->loginSettings->registerController, 'onSubmit']));
+      $array[$auth->urlPrefix () . '...'][$loginSettings->routeRegister] =
+        page ('register/register.html', controller ([$this->loginSettings->registerController, 'onSubmit']));
     }
 
-    if ($loginSettings->routeResetPasswordOnOff){
-      $array[$auth->urlPrefix() . '...'][$loginSettings->routeResetPassword] = page('resetPassword/resetPassword.html', controller([$this->loginSettings->loginController, 'forgotPassword']));
-      $array[$auth->urlPrefix() . '...'][$loginSettings->routeResetPasswordToken] = [
-        injectableHandler([$this->loginSettings->resetPasswordController, 'validateToken']),
-        page('resetPassword/newPassword.html', controller([$this->loginSettings->resetPasswordController, 'resetPassword']))
+    if ($loginSettings->routeResetPasswordOnOff) {
+      $array[$auth->urlPrefix () . '...'][$loginSettings->routeResetPassword]      =
+        page ('resetPassword/resetPassword.html',
+          controller ([$this->loginSettings->loginController, 'forgotPassword']));
+      $array[$auth->urlPrefix () . '...'][$loginSettings->routeResetPasswordToken] = [
+        injectableHandler ([$this->loginSettings->resetPasswordController, 'validateToken']),
+        page ('resetPassword/newPassword.html',
+          controller ([$this->loginSettings->resetPasswordController, 'resetPassword'])),
       ];
     }
 
-    if ($loginSettings->routeActivateUserOnOff){
-      $array[$auth->urlPrefix() . '...'][$loginSettings->routeActivateUserToken] = [
-        injectableHandler([$this->loginSettings->resetPasswordController, 'validateToken']),
-        page('activateUser/activateUser.html')
+    if ($loginSettings->routeActivateUserOnOff) {
+      $array[$auth->urlPrefix () . '...'][$loginSettings->routeActivateUserToken] = [
+        injectableHandler ([$this->loginSettings->resetPasswordController, 'validateToken']),
+        page ('activateUser/activateUser.html'),
       ];
     }
 
-    if ($loginSettings->routeAdminActivateUserOnOff)
-    {
-      $array[$auth->urlPrefix() . '...'][$loginSettings->routeAdminActivateUserToken] = [
-        injectableHandler([$this->loginSettings->resetPasswordController, 'validateToken']),
-        page('activateUser/adminActivateUser.html')
+    if ($loginSettings->routeAdminActivateUserOnOff) {
+      $array[$auth->urlPrefix () . '...'][$loginSettings->routeAdminActivateUserToken] = [
+        injectableHandler ([$this->loginSettings->resetPasswordController, 'validateToken']),
+        page ('activateUser/adminActivateUser.html'),
       ];
     }
 
     return $this->router
-      ->add($array)
-      ->__invoke($request, $response, $next);
+      ->add ($array)
+      ->__invoke ($request, $response, $next);
   }
 
 }
