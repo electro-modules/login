@@ -10,6 +10,8 @@ use Electro\Interfaces\SessionInterface;
 use Electro\Interfaces\UserInterface;
 use Electro\Kernel\Config\KernelSettings;
 use Electro\Plugins\Login\Config\LoginSettings;
+use GuzzleHttp\Psr7\ServerRequest;
+use HansOtt\PSR7Cookies\RequestCookies;
 use HansOtt\PSR7Cookies\SetCookie;
 use PhpKit\ExtPDO\Interfaces\ConnectionsInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -113,8 +115,11 @@ class LoginController
     return $response;
   }
 
-  function forgotPassword ($data)
+  function forgotPassword ($data, ServerRequestInterface $request)
   {
+    $redirect = $this->redirection->setRequest ($request);
+    $response = $redirect->to ($this->navigation['login']->url ());
+
     if (empty(get ($data, 'email')))
       throw new AuthenticationException('$RECOVERPASS_MISSINGEMAIL_INPUT');
     else if (!filter_var (get ($data, 'email'),
@@ -129,10 +134,22 @@ class LoginController
       if ($this->user->activeField () == 0) throw new AuthenticationException('$LOGIN_DISABLED', FlashType::ERROR);
       $token = bin2hex (openssl_random_pseudo_bytes (16));
       $this->user->tokenField ($token);
+
+      $serverRequest = ServerRequest::fromGlobals ();
+      $cookies       = RequestCookies::createFromRequest ($serverRequest);
+
+      if ($cookies->has ($this->kernelSettings->name . "/" . $this->kernelSettings->rememberMeTokenName)) {
+        $cookie   =
+          SetCookie::thatStaysForever ($this->kernelSettings->name . "/" . $this->kernelSettings->rememberMeTokenName,
+            $this->user->tokenField (),
+            $request->getAttribute ('baseUri'));
+        $response = $cookie->addToResponse ($response);
+      }
+
       $this->user->submit ();
       $r = $this->sendResetPasswordEmail (get ($data, 'email'), $token);
       if ($r) return $r;
-      return redirectTo ('login');
+      return $response;
     }
   }
 

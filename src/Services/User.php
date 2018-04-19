@@ -157,7 +157,7 @@ class User extends GenericUser implements UserInterface
     $now = date ('Y-m-d H:i:s', time () - 3600);
     if (isset($this->id)) {
       $this->db->exec ('UPDATE ' . $this->loginSettings->usersTableName .
-                       ' SET updated_at = ?, active = ?, enabled = ?, lastLogin = ?, realName = ?, registrationDate = ?, role = ?, token = ?, email = ?, password = ? WHERE id = ?;',
+                       ' SET updatedAt = ?, active = ?, enabled = ?, lastLogin = ?, realName = ?, registrationDate = ?, role = ?, token = ?, email = ?, password = ? WHERE id = ?;',
         [
           $now, $this->active, $this->enabled, $this->lastLogin, $this->realName, $this->registrationDate,
           $this->role, $this->token,
@@ -165,7 +165,7 @@ class User extends GenericUser implements UserInterface
         ]);
     }
     else $this->db->exec ('INSERT INTO ' . $this->loginSettings->usersTableName .
-                          ' (created_at,updated_at,email,password,realName, registrationDate,role,active,enabled,token) VALUES(?,?,?,?,?,?,?,?,?,?);',
+                          ' (createdAt,updatedAt,email,password,realName, registrationDate,role,active,enabled,token) VALUES(?,?,?,?,?,?,?,?,?,?);',
       [
         $now, $now, $this->email, $this->password, $this->realName, $now, UserInterface::USER_ROLE_STANDARD,
         $this->active, $this->enabled,
