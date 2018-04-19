@@ -4,6 +4,7 @@ namespace Electro\Plugins\Login\Config;
 use Electro\Plugins\Login\Controllers\LoginController;
 use Electro\Plugins\Login\Controllers\RegisterController;
 use Electro\Plugins\Login\Controllers\ResetPasswordController;
+use Electro\Plugins\Login\ViewModels\Register\Register;
 
 /**
  * Configuration settings for the LoginForms module.
@@ -15,10 +16,19 @@ class LoginSettings
    */
   public $title;
 
+  /**
+   * @var LoginController Controller name used in Routes
+   */
   public $loginController = LoginController::class;
 
+  /**
+   * @var RegisterController Controller name used in Routes
+   */
   public $registerController = RegisterController::class;
 
+  /**
+   * @var ResetPasswordController Controller name used in Routes
+   */
   public $resetPasswordController = ResetPasswordController::class;
 
   /**
@@ -32,27 +42,28 @@ class LoginSettings
   public $approvalAdminEmail = '';
 
   /**
-   * @var string Users table name on your database
+   *
+   * @var string Users table name on your database, only in case you use the default user class
    */
   public $usersTableName = "users";
 
   /**
-   * @var boolean Defines register user route is active or not
+   * @var boolean Defines register user (functionality) is active or not
    */
   public $routeRegisterOnOff = true;
 
   /**
-   * @var boolean Defines reset password route is active or not
+   * @var boolean Defines reset password (functionality) is active or not
    */
   public $routeResetPasswordOnOff = true;
 
   /**
-   * @var boolean Defines activation of user route is active or not
+   * @var boolean Defines activation of user (functionality) is active or not
    */
   public $routeActivateUserOnOff = true;
 
   /**
-   * @var boolean Defines activation of user by admin (route) is active or not
+   * @var boolean Defines activation of user by admin (functionality) is active or not
    */
   public $routeAdminActivateUserOnOff = false;
 
@@ -67,7 +78,7 @@ class LoginSettings
   public $loginAfterResetPassword = true;
 
   /*
-   * URL configuration
+   * URL configuration, Names of routes
    */
 
   public $routeRegister = "register";
@@ -84,7 +95,11 @@ class LoginSettings
    * Variable names
    */
 
-  public $varEmailOnLogin = 'username';
+  /**
+   * @var boolean Defines if it is username or email, to log in. If it is "true", email is being used to login, if it
+   *      is "false", username is being used to login
+   */
+  public $varUserOrEmailOnLogin = true;
 
   public $masterLayout = 'layouts/master.html';
 }

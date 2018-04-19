@@ -55,7 +55,7 @@ class User extends GenericUser implements UserInterface
   public function findByName ($username)
   {
     $user =
-      $this->db->select ('SELECT * FROM ' . $this->loginSettings->usersTableName . ' WHERE email = ?', [$username])
+      $this->db->select ('SELECT * FROM ' . $this->loginSettings->usersTableName . ' WHERE username = ?', [$username])
                ->fetchObject ();
 
     if ($user) {
@@ -109,6 +109,7 @@ class User extends GenericUser implements UserInterface
   {
     $newPassword = password_hash (get ($data, 'password'), PASSWORD_BCRYPT);
 
+    $username = get ($data, 'username');
     $email    = get ($data, 'email');
     $realName = get ($data, 'realName');
     $token    = get ($data, 'token');
@@ -121,7 +122,7 @@ class User extends GenericUser implements UserInterface
     $this->realName = $realName;
     $this->email    = $email;
     $this->token    = $token;
-    $this->username = $email;
+    $this->username = $username;
     $this->role     = UserInterface::USER_ROLE_STANDARD;
   }
 
@@ -153,12 +154,12 @@ class User extends GenericUser implements UserInterface
 
   function submit ()
   {
-    $now = date ("Y-m-d h:i:s");
+    $now = date ('Y-m-d H:i:s', time () - 3600);
     if (isset($this->id)) {
       $this->db->exec ('UPDATE ' . $this->loginSettings->usersTableName .
-                       ' SET active = ?, enabled = ?, lastLogin = ?, realName = ?, registrationDate = ?, role = ?, token = ?, email = ?, password = ? WHERE id = ?;',
+                       ' SET updated_at = ?, active = ?, enabled = ?, lastLogin = ?, realName = ?, registrationDate = ?, role = ?, token = ?, email = ?, password = ? WHERE id = ?;',
         [
-          $this->active, $this->enabled, $this->lastLogin, $this->realName, $this->registrationDate,
+          $now, $this->active, $this->enabled, $this->lastLogin, $this->realName, $this->registrationDate,
           $this->role, $this->token,
           $this->email, $this->password, $this->id,
         ]);

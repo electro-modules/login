@@ -82,7 +82,7 @@ class LoginModule implements ModuleInterface, RequestHandlerInterface
 
     if ($loginSettings->routeRegisterOnOff) {
       $array[$auth->urlPrefix () . '...'][$loginSettings->routeRegister] =
-        page ('register/register.html', controller ([$this->loginSettings->registerController, 'onSubmit']));
+        page ('register/register.html', controller ([$this->loginSettings->registerController, 'onSubmitRegister']));
     }
 
     if ($loginSettings->routeResetPasswordOnOff) {

@@ -7,95 +7,112 @@
 <Content of=bodyAttrs value="class=login-page"/>
 <Content of="body">
 
-    <FlashMessage/>
+  <FlashMessage/>
 
-    <div class="login-container">
-        <div class="login-box" style="opacity:0">
-            <div class="login-box-body">
-                <h1 class="text-info">{app.appName}</h1>
-                <If {settings.title}>
-                    <h3 class="text-info">{settings.title}</h3>
-                </If>
-                <h4>$REGISTER_PROMPT</h4>
-                <form method="POST" action="">
-                    <div class="form-group has-feedback">
-                        <label for="realName">$REGISTER_REALNAME</label>
-                        <input name="realName"
-                               id="realName"
-                               type="text"
-                               class="form-control"
-                               tabindex=1
-                               maxlength="30"
-                               value="{realName}"
-                               {realName|else 'autofocus'} >
-                        <span class="glyphicon glyphicon-user form-control-feedback"></span>
-                    </div>
-                    <div class="form-group has-feedback">
-                        <label for="email">$LOGIN_EMAIL</label>
-                        <input name="email"
-                               id="email"
-                               type="text"
-                               class="form-control"
-                               tabindex=1
-                               maxlength="100"
-                               value="{email}"
-                               {email|else 'autofocus'}>
-                        <span class="glyphicon glyphicon-user form-control-feedback"></span>
-                    </div>
-                    <div class="form-group has-feedback">
-                        <label for="password">$REGISTER_PASSWORD</label>
-                        <input name="password"
-                               id="password"
-                               type="password"
-                               class="form-control"
-                               tabindex=2
-                               maxlength="60"
-                               value="{password}"
-                               {password|else 'autofocus'}>
-                        <span class="glyphicon glyphicon-lock form-control-feedback"></span>
-                    </div>
-                    <div class="form-group has-feedback">
-                        <label for="password2">$REGISTER_PASSWORD2</label>
-                        <input name="password2"
-                               id="password2"
-                               type="password"
-                               class="form-control"
-                               tabindex=2
-                               maxlength="60"
-                               value="{password2}"
-                               {password2|else 'autofocus'}>
-                        <span class="glyphicon glyphicon-lock form-control-feedback"></span>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-6">
-
-                        </div>
-                        <div class="col-sm-6">
-                            <button class="btn-primary btn btn-block with-icon icon-right"
-                                    type="submit"
-                                    tabindex=4>
-                                <i class="fa fa-play-circle"></i> $REGISTER_BUTTON
-                            </button>
-                        </div>
-                    </div>
-                </form>
+  <div class="login-container">
+    <div class="login-box" style="opacity:0">
+      <div class="login-box-body">
+        <h1 class="text-info">{app.appName}</h1>
+        <If {settings.title}>
+          <h3 class="text-info">{settings.title}</h3>
+        </If>
+        <h4>$REGISTER_PROMPT</h4>
+        <form method="POST" action="">
+          <div class="form-group has-feedback">
+            <label for="realName">$REGISTER_REALNAME</label>
+            <input name="realName"
+                   id="realName"
+                   type="text"
+                   class="form-control"
+                   tabindex=1
+                   maxlength="30"
+                   value="{realName}"
+                   {realName|else
+            'autofocus'} >
+            <span class="glyphicon glyphicon-user form-control-feedback"></span>
+          </div>
+          <If {!settings.varUserOrEmailOnLogin}>
+            <div class="form-group has-feedback">
+              <label for="username">$LOGIN_USERNAME</label>
+              <input name="username"
+                     id="username"
+                     type="text"
+                     class="form-control"
+                     tabindex=1
+                     maxlength="30"
+                     value="{username}"
+                     {username|else
+              'autofocus'}>
+              <span class="glyphicon glyphicon-user form-control-feedback"></span>
             </div>
-        </div>
-    </div>
+          </If>
+          <div class="form-group has-feedback">
+            <label for="email">$LOGIN_EMAIL</label>
+            <input name="email"
+                   id="email"
+                   type="text"
+                   class="form-control"
+                   tabindex=1
+                   maxlength="100"
+                   value="{email}"
+                   {email|else
+            'autofocus'}>
+            <span class="glyphicon glyphicon-user form-control-feedback"></span>
+          </div>
+          <div class="form-group has-feedback">
+            <label for="password">$REGISTER_PASSWORD</label>
+            <input name="password"
+                   id="password"
+                   type="password"
+                   class="form-control"
+                   tabindex=2
+                   maxlength="60"
+                   value="{password}"
+                   {password|else
+            'autofocus'}>
+            <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+          </div>
+          <div class="form-group has-feedback">
+            <label for="password2">$REGISTER_PASSWORD2</label>
+            <input name="password2"
+                   id="password2"
+                   type="password"
+                   class="form-control"
+                   tabindex=2
+                   maxlength="60"
+                   value="{password2}"
+                   {password2|else
+            'autofocus'}>
+            <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+          </div>
+          <div class="row">
+            <div class="col-sm-6">
 
-    <Script>
-        window.onload = function () {
-            $('.login-box').fadeTo(200, 1);
-            var i;
-            $('#username').on('keypress', function (ev) {
-                if (!i) {
-                    i = true;
-                    if (ev.keyCode != 13 && $(this).val())
-                        $(this).val('');
-                }
-            });
+            </div>
+            <div class="col-sm-6">
+              <button class="btn-primary btn btn-block with-icon icon-right" type="submit" tabindex=4>
+                <i class="fa fa-play-circle"></i> $REGISTER_BUTTON
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <Script>
+    window.onload = function () {
+      $ ('.login-box').fadeTo (200, 1);
+      var i;
+      $ ('#username').on ('keypress', function (ev) {
+        if (!i) {
+          i = true;
+          if (ev.keyCode != 13 && $ (this).val ())
+            $ (this).val ('');
         }
-    </Script>
+      });
+    }
+  </Script>
 
 </Content>
 

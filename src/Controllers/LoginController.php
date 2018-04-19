@@ -56,19 +56,27 @@ class LoginController
   /**
    * Attempts to log in the user with the given credentials.
    *
-   * @param string $username
+   * @param string $usernameOrEmail
    * @param string $password
    * @throws AuthenticationException If the login fails.
    */
-  function doLogin ($username, $password)
+  function doLogin ($usernameOrEmail, $password)
   {
-    if (empty($username))
+    if (empty($usernameOrEmail))
       throw new AuthenticationException ('$LOGIN_MISSING_INFO');
     else {
       $user = $this->user;
-      if (!$user->findByName ($username))
-        throw new AuthenticationException ('$LOGIN_UNKNOWN_USER', FlashType::ERROR);
-      else if (!$user->verifyPassword ($password))
+
+      if ($this->loginSettings->varUserOrEmailOnLogin) {
+        if (!$user->findByEmail ($usernameOrEmail))
+          throw new AuthenticationException ('$LOGIN_UNKNOWN_USER', FlashType::ERROR);
+      }
+      else {
+        if (!$user->findByName ($usernameOrEmail))
+          throw new AuthenticationException ('$LOGIN_UNKNOWN_USER', FlashType::ERROR);
+      }
+
+      if (!$user->verifyPassword ($password))
         throw new AuthenticationException ('$LOGIN_WRONG_PASSWORD', FlashType::ERROR);
       else if (!$user->activeField ())
         throw new AuthenticationException ('$LOGIN_NOTACTIVE');
@@ -88,7 +96,10 @@ class LoginController
     $loginSettings = $this->loginSettings;
     $session->setLang (get ($data, 'lang'));
 
-    $this->doLogin (get ($data, $loginSettings->varEmailOnLogin), get ($data, 'password'));
+    if ($loginSettings->varUserOrEmailOnLogin) $usernameEmail = "email";
+    else $usernameEmail = "username";
+
+    $this->doLogin (get ($data, $usernameEmail), get ($data, 'password'));
 
     $response = $redirect->intended ($request->getAttribute ('baseUri'));
 

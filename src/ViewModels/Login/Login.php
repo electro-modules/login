@@ -24,6 +24,7 @@ class Login extends ViewModel
 
     $this->set([
       'username' => $session->getOldInput('username'),
+      'email' => $session->getOldInput('email'),
       'password' => $session->getOldInput('password'),
       'lang' => $session->getOldInput('lang'),
     ]);

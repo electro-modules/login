@@ -23,6 +23,7 @@ class Register extends ViewModel
 
     $this->set([
       'realName' => $session->getOldInput('realName'),
+      'username' => $session->getOldInput('username'),
       'email' => $session->getOldInput('email'),
       'password' => $session->getOldInput('password'),
       'password2' => $session->getOldInput('password2'),

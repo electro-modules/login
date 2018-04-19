@@ -19,16 +19,31 @@
         <h4>$LOGIN_PROMPT</h4>
         <form method="POST" action="">
           <div class="form-group has-feedback">
-            <label for="{settings.varEmailOnLogin}">$LOGIN_EMAIL</label>
-            <input name="{settings.varEmailOnLogin}"
-                   id="{settings.varEmailOnLogin}"
-                   type="text"
-                   class="form-control"
-                   tabindex=1
-                   maxlength="100"
-                   value="{username}"
-                   {username|else
-            'autofocus'}>
+            <If {settings.varUserOrEmailOnLogin}>
+              <label for="email">$LOGIN_EMAIL</label>
+              <input name="email"
+                     id="email"
+                     type="email"
+                     class="form-control"
+                     tabindex=1
+                     maxlength="100"
+                     value="{email}"
+                     {email|else
+              'autofocus'}>
+              <Else>
+                <label for="username">$LOGIN_USERNAME</label>
+                <input name="username"
+                       id="username"
+                       type="text"
+                       class="form-control"
+                       tabindex=1
+                       maxlength="30"
+                       value="{username}"
+                       {username|else
+                'autofocus'}>
+              </Else>
+            </If>
+
             <span class="glyphicon glyphicon-user form-control-feedback"></span>
             <If {settings.routeResetPasswordOnOff}>
               <a class="remember" href="{navigation.forgotPassword}">$LOGIN_FORGET_PASS</a>
