@@ -132,10 +132,7 @@ class LoginController
       $this->user->findByEmail (get ($data, 'email'));
       if ($this->user->active == 0) throw new AuthenticationException('$LOGIN_DISABLED', FlashType::ERROR);
       $token = bin2hex (openssl_random_pseudo_bytes (16));
-
-      $user = $this->user->getFields ();
-      $user['token'] = $token;
-      $this->user->mergeFields ($user);
+      $this->user->mergeFields (['token' => $token]);
 
       $serverRequest = ServerRequest::fromGlobals ();
       $cookies       = RequestCookies::createFromRequest ($serverRequest);

@@ -54,9 +54,7 @@ class ActivateUser extends ViewModel
 
     if ($adminAprovation == false) {
       if ($this->user->findByToken($token)) {
-        $user = $this->user->getFields ();
-        $user['active'] = 1;
-        $this->user->mergeFields ($user);
+        $this->user->mergeFields (['active' => 1]);
         $this->user->submit();
       }
       $this->set([

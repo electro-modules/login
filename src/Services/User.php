@@ -17,6 +17,7 @@ class User extends GenericUser implements UserInterface
     'email',
     'password',
   ];
+
   public  $active;
   public  $email;
   public  $enabled;
@@ -114,7 +115,7 @@ class User extends GenericUser implements UserInterface
     else $this->db->exec ('INSERT INTO ' . $this->loginSettings->usersTableName .
                           ' (registrationDate,updatedAt,email,password,username,realName,role,active,enabled,token) VALUES(?,?,?,?,?,?,?,?,?,?);',
       [
-        $now, $now, $this->email, $this->password, $this->username, $this->realName, UserInterface::USER_ROLE_STANDARD,
+        $now, $now, $this->email, $this->password, $this->username, $this->realName, $this->role,
         $this->active, $this->enabled,
         $this->token,
       ]);

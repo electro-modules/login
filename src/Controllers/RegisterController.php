@@ -63,6 +63,8 @@ class RegisterController
     $token         = bin2hex (openssl_random_pseudo_bytes (16));
     $data['token'] = $token;
     $data['role'] = UserInterface::USER_ROLE_STANDARD;
+    $data['active'] = 0;
+    $data['enabled'] = 1;
 
     $this->user->mergeFields($data);
     $this->user->submit ();

@@ -8,7 +8,6 @@ use Electro\Interfaces\UserInterface;
 use Electro\Interop\ViewModel;
 use Electro\Kernel\Config\KernelSettings;
 use Electro\Plugins\Login\Config\LoginSettings;
-use PhpKit\ExtPDO\Interfaces\ConnectionsInterface;
 
 class AdminActivateUser extends ViewModel
 {
@@ -18,24 +17,24 @@ class AdminActivateUser extends ViewModel
    */
   private $user;
 
-  public function __construct(SessionInterface $session, LoginSettings $loginSettings, KernelSettings $kernelSettings, NavigationInterface $navigation, \Swift_Mailer $mailer, UserInterface $user)
+  public function __construct (SessionInterface $session, LoginSettings $loginSettings, KernelSettings $kernelSettings,
+                               NavigationInterface $navigation, \Swift_Mailer $mailer, UserInterface $user)
   {
-    parent::__construct();
+    parent::__construct ();
     $this->loginSettings = $loginSettings;
-    $this->user = $user;
+    $this->user          = $user;
   }
 
-  public function init()
+  public function init ()
   {
     $token = $this['props']['token'];
 
-    if ($this->user->findByToken($token)) {
-      $user = $this->user->getFields ();
-      $user['active'] = 1;
-      $this->user->mergeFields ($user);
-      $this->user->submit();
+    if ($this->user->findByToken ($token)) {
+      $this->user->mergeFields (['active' => 1]);
+      $this->user->submit ();
     }
-    $this->set([
-      'activateUser' => '$ACTIVATEUSER_SUCCESS']);
+    $this->set ([
+      'activateUser' => '$ACTIVATEUSER_SUCCESS',
+    ]);
   }
 }

@@ -75,11 +75,8 @@ class ResetPasswordController
 
     if ($password == $password2) {
       if ($this->user->findByToken ($token)) {
-        $user = $this->user->getFields ();
-        $user['password'] = $password;
         $token = bin2hex (openssl_random_pseudo_bytes (16));
-        $user['token'] = $token;
-        $this->user->mergeFields ($user);
+        $this->user->mergeFields (['password' => $password, 'token' => $token]);
 
         if ($this->loginSettings->loginAfterResetPassword) {
           $response = $redirect->intended ($request->getAttribute ('baseUri'));
