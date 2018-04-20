@@ -77,12 +77,11 @@ class LoginController
         if (!$user->findByName ($usernameOrEmail))
           throw new AuthenticationException ('$LOGIN_UNKNOWN_USER', FlashType::ERROR);
       }
-
       if (!$user->verifyPassword ($password))
         throw new AuthenticationException ('$LOGIN_WRONG_PASSWORD', FlashType::ERROR);
-      else if (!$user->activeField ())
+      else if (!$user->active)
         throw new AuthenticationException ('$LOGIN_NOTACTIVE');
-      else if (!$user->enabledField ())
+      else if (!$user->enabled)
         throw new AuthenticationException ('$LOGIN_DISABLED');
       else {
         $user->onLogin ();
@@ -108,7 +107,7 @@ class LoginController
     if (get ($data, 'remember')) {
       $cookie =
         SetCookie::thatStaysForever ($this->kernelSettings->name . "/" . $this->kernelSettings->rememberMeTokenName,
-          $this->user->tokenField (),
+          $this->user->token,
           $request->getAttribute ('baseUri'));
       return $cookie->addToResponse ($response);
     }
@@ -131,9 +130,12 @@ class LoginController
     ) throw new AuthenticationException('$RECOVERPASS_MISSINGEMAIL');
     else {
       $this->user->findByEmail (get ($data, 'email'));
-      if ($this->user->activeField () == 0) throw new AuthenticationException('$LOGIN_DISABLED', FlashType::ERROR);
+      if ($this->user->active == 0) throw new AuthenticationException('$LOGIN_DISABLED', FlashType::ERROR);
       $token = bin2hex (openssl_random_pseudo_bytes (16));
-      $this->user->tokenField ($token);
+
+      $user = $this->user->getFields ();
+      $user['token'] = $token;
+      $this->user->mergeFields ($user);
 
       $serverRequest = ServerRequest::fromGlobals ();
       $cookies       = RequestCookies::createFromRequest ($serverRequest);
@@ -141,7 +143,7 @@ class LoginController
       if ($cookies->has ($this->kernelSettings->name . "/" . $this->kernelSettings->rememberMeTokenName)) {
         $cookie   =
           SetCookie::thatStaysForever ($this->kernelSettings->name . "/" . $this->kernelSettings->rememberMeTokenName,
-            $this->user->tokenField (),
+            $this->user->token,
             $request->getAttribute ('baseUri'));
         $response = $cookie->addToResponse ($response);
       }

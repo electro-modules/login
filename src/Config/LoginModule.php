@@ -4,7 +4,6 @@ namespace Electro\Plugins\Login\Config;
 
 use Electro\Authentication\Config\AuthenticationSettings;
 use Electro\Authentication\Lib\GenericUser;
-use Electro\Authentication\Middleware\AuthenticationMiddleware;
 use Electro\Interfaces\DI\InjectorInterface;
 use Electro\Interfaces\Http\RequestHandlerInterface;
 use Electro\Interfaces\Http\RouterInterface;
@@ -14,11 +13,11 @@ use Electro\Interfaces\ModuleInterface;
 use Electro\Kernel\Lib\ModuleInfo;
 use Electro\Localization\Config\LocalizationSettings;
 use Electro\Navigation\Config\NavigationSettings;
+use Electro\Plugins\Login\Services\User;
 use Electro\Profiles\WebProfile;
 use Electro\ViewEngine\Config\ViewEngineSettings;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Electro\Plugins\Login\Services\User;
 
 class LoginModule implements ModuleInterface, RequestHandlerInterface
 {

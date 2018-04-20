@@ -56,7 +56,7 @@ class ResetPasswordController
   {
 
     if ($user->findByToken ($request->getAttribute ('@token'))) {
-      if ($user->enabledField () == 1) return $next();
+      if ($user->enabled == 1) return $next();
     }
     return redirectTo ('login');
   }
@@ -75,9 +75,11 @@ class ResetPasswordController
 
     if ($password == $password2) {
       if ($this->user->findByToken ($token)) {
-        $this->user->passwordField ($password);
+        $user = $this->user->getFields ();
+        $user['password'] = $password;
         $token = bin2hex (openssl_random_pseudo_bytes (16));
-        $this->user->tokenField ($token);
+        $user['token'] = $token;
+        $this->user->mergeFields ($user);
 
         if ($this->loginSettings->loginAfterResetPassword) {
           $response = $redirect->intended ($request->getAttribute ('baseUri'));
@@ -90,7 +92,7 @@ class ResetPasswordController
         if ($cookies->has ($this->kernelSettings->name . "/" . $this->kernelSettings->rememberMeTokenName)) {
           $cookie   =
             SetCookie::thatStaysForever ($this->kernelSettings->name . "/" . $this->kernelSettings->rememberMeTokenName,
-              $this->user->tokenField (),
+              $this->user->token,
               $request->getAttribute ('baseUri'));
           $response = $cookie->addToResponse ($response);
         }

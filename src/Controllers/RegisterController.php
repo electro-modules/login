@@ -62,8 +62,9 @@ class RegisterController
 
     $token         = bin2hex (openssl_random_pseudo_bytes (16));
     $data['token'] = $token;
+    $data['role'] = UserInterface::USER_ROLE_STANDARD;
 
-    $this->user->setRecord ($data);
+    $this->user->mergeFields($data);
     $this->user->submit ();
 
     $return = $this->sendActivationEmail (get ($data, 'email'), $token);

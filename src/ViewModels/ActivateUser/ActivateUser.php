@@ -49,13 +49,14 @@ class ActivateUser extends ViewModel
 
   public function init()
   {
-    $adminAprovation = $this->loginSettings->newAccountsRequireApproval;
+    $adminAprovation = $this->loginSettings->routeAdminActivateUserOnOff;
     $token = $this['props']['token'];
 
     if ($adminAprovation == false) {
       if ($this->user->findByToken($token)) {
-        $this->user->activeField(1);
-        //$this->user->tokenField("");
+        $user = $this->user->getFields ();
+        $user['active'] = 1;
+        $this->user->mergeFields ($user);
         $this->user->submit();
       }
       $this->set([
@@ -73,15 +74,14 @@ class ActivateUser extends ViewModel
     }
   }
 
-
   private function sendActivationEmailToAdmin($emailTo, $token)
   {
     $url = $this->kernelSettings->baseUrl;
     $url2 = $this->navigation['adminActivateUser'];
 
     $this->user->findByToken($token);
-    $realName = $this->user->realNameField();
-    $email = $this->user->emailField();
+    $realName = $this->user->realName;
+    $email = $this->user->email;
 
     $sSubject = 'Ativação de Nova Conta de Utilizador';
     $sBody = <<<HTML

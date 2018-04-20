@@ -30,8 +30,9 @@ class AdminActivateUser extends ViewModel
     $token = $this['props']['token'];
 
     if ($this->user->findByToken($token)) {
-      $this->user->activeField(1);
-      //$this->user->tokenField("");
+      $user = $this->user->getFields ();
+      $user['active'] = 1;
+      $this->user->mergeFields ($user);
       $this->user->submit();
     }
     $this->set([

@@ -5,30 +5,30 @@ namespace Electro\Plugins\Login\Services;
 use Electro\Authentication\Lib\GenericUser;
 use Electro\Interfaces\UserInterface;
 use Electro\Plugins\Login\Config\LoginSettings;
-use PhpKit\ExtPDO\Interfaces\ConnectionsInterface;
 use Electro\Traits\InspectionTrait;
+use PhpKit\ExtPDO\Interfaces\ConnectionsInterface;
 
 class User extends GenericUser implements UserInterface
 {
   use InspectionTrait;
 
-  public $active;
-  public $enabled;
-  public $id;
-  public $lastLogin;
-  public $password;
-  public $realName;
-  public $registrationDate;
-  public $role;
-  public $token;
-  public $email;
-  public $username;
-
-  private $db;
-
-  static $INSPECTABLE = [
-    'active', 'enabled', 'id', 'lastLogin', 'realName', 'registrationDate', 'role', 'token', 'email', 'password',
+  static  $INSPECTABLE = [
+    'active', 'enabled', 'id', 'lastLogin', 'username', 'realName', 'registrationDate', 'updatedAt', 'role', 'token',
+    'email',
+    'password',
   ];
+  public  $active;
+  public  $email;
+  public  $enabled;
+  public  $id;
+  public  $lastLogin;
+  public  $password;
+  public  $realName;
+  public  $registrationDate;
+  public  $role;
+  public  $token;
+  public  $username;
+  private $db;
   /**
    * @var LoginSettings
    */
@@ -39,6 +39,17 @@ class User extends GenericUser implements UserInterface
     $this->db            = $connections->get ()->getPdo ();
     $this->loginSettings = $loginSettings;
 
+  }
+
+  public function findByEmail ($email)
+  {
+    $user = $this->db->select ('SELECT * FROM ' . $this->loginSettings->usersTableName . ' WHERE email = ?', [$email])
+                     ->fetchObject ();
+    if ($user) {
+      $this->fillFields ($user);
+      return true;
+    }
+    return false;
   }
 
   public function findById ($id)
@@ -77,74 +88,43 @@ class User extends GenericUser implements UserInterface
     return false;
   }
 
-  public function findByEmail ($email)
-  {
-    $user = $this->db->select ('SELECT * FROM ' . $this->loginSettings->usersTableName . ' WHERE email = ?', [$email])
-                     ->fetchObject ();
-    if ($user) {
-      $this->fillFields ($user);
-      return true;
-    }
-    return false;
-  }
-
-  public function getRecord ()
+  public function getFields ()
   {
     return [
-      'active'           => $this->activeField (),
-      'id'               => $this->idField (),
-      'lastLogin'        => $this->lastLoginField (),
-      'realName'         => $this->realNameField (),
-      'registrationDate' => $this->registrationDateField (),
-      'role'             => $this->roleField (),
-      'token'            => $this->tokenField (),
-      'username'         => $this->usernameField (),
-      'email'            => $this->emailField (),
-      'password'         => $this->passwordField (),
-      'enabled'          => $this->enabledField (),
+      'active'           => $this->active,
+      'id'               => $this->id,
+      'lastLogin'        => $this->lastLogin,
+      'realName'         => $this->realName,
+      'registrationDate' => $this->registrationDate,
+      'updatedAt'        => $this->updatedAt,
+      'role'             => $this->role,
+      'token'            => $this->token,
+      'username'         => $this->username,
+      'email'            => $this->email,
+      'password'         => '',
+      'enabled'          => $this->enabled,
     ];
   }
 
-  function setRecord ($data)
+  function mergeFields ($data)
   {
-    $newPassword = password_hash (get ($data, 'password'), PASSWORD_BCRYPT);
+    if (exists (get ($data, 'password'))) {
+      $this->password = password_hash (get ($data, 'password'), PASSWORD_BCRYPT);
+    }
 
-    $username = get ($data, 'username');
-    $email    = get ($data, 'email');
-    $realName = get ($data, 'realName');
-    $token    = get ($data, 'token');
-    $active   = get ($data, 'active', 0);
-    $enabled  = get ($data, 'enabled', 1);
-
-    $this->active   = $active;
-    $this->enabled  = $enabled;
-    $this->password = $newPassword;
-    $this->realName = $realName;
-    $this->email    = $email;
-    $this->token    = $token;
-    $this->username = $username;
-    $this->role     = UserInterface::USER_ROLE_STANDARD;
+    $this->active   = get ($data, 'active', 0);
+    $this->enabled  = get ($data, 'enabled', 1);
+    $this->realName = get ($data, 'realName');
+    $this->email    = get ($data, 'email');
+    $this->token    = get ($data, 'token');
+    $this->username = get ($data, 'username');
+    $this->role     = get ($data, 'role', UserInterface::USER_ROLE_STANDARD);
   }
 
   function onLogin ()
   {
     $this->lastLogin = date ('Y-m-d H:i:s', time () - 3600);
     $this->db->exec ('UPDATE users SET lastLogin = ? WHERE id = ?;', [$this->lastLogin, $this->id]);
-  }
-
-  private function fillFields ($user)
-  {
-    $this->active           = $user->active;
-    $this->id               = $user->id;
-    $this->lastLogin        = $user->lastLogin;
-    $this->realName         = $user->realName;
-    $this->registrationDate = $user->registrationDate;
-    $this->role             = $user->role;
-    $this->token            = $user->token;
-    $this->email            = $user->email;
-    $this->password         = $user->password;
-    $this->enabled          = $user->enabled;
-    $this->username         = $user->email;
   }
 
   function remove ()
@@ -157,20 +137,36 @@ class User extends GenericUser implements UserInterface
     $now = date ('Y-m-d H:i:s', time () - 3600);
     if (isset($this->id)) {
       $this->db->exec ('UPDATE ' . $this->loginSettings->usersTableName .
-                       ' SET updatedAt = ?, active = ?, enabled = ?, lastLogin = ?, realName = ?, registrationDate = ?, role = ?, token = ?, email = ?, password = ? WHERE id = ?;',
+                       ' SET updatedAt = ?, active = ?, enabled = ?, lastLogin = ?, realName = ?, role = ?, token = ?, email = ?, password = ? WHERE id = ?;',
         [
-          $now, $this->active, $this->enabled, $this->lastLogin, $this->realName, $this->registrationDate,
+          $now, $this->active, $this->enabled, $this->lastLogin, $this->realName,
           $this->role, $this->token,
           $this->email, $this->password, $this->id,
         ]);
     }
     else $this->db->exec ('INSERT INTO ' . $this->loginSettings->usersTableName .
-                          ' (createdAt,updatedAt,email,password,realName, registrationDate,role,active,enabled,token) VALUES(?,?,?,?,?,?,?,?,?,?);',
+                          ' (registrationDate,updatedAt,email,password,username,realName,role,active,enabled,token) VALUES(?,?,?,?,?,?,?,?,?,?);',
       [
-        $now, $now, $this->email, $this->password, $this->realName, $now, UserInterface::USER_ROLE_STANDARD,
+        $now, $now, $this->email, $this->password, $this->username, $this->realName, UserInterface::USER_ROLE_STANDARD,
         $this->active, $this->enabled,
         $this->token,
       ]);
+  }
+
+  private function fillFields ($user)
+  {
+    $this->active           = $user->active;
+    $this->id               = $user->id;
+    $this->lastLogin        = $user->lastLogin;
+    $this->realName         = $user->realName;
+    $this->registrationDate = $user->registrationDate;
+    $this->updatedAt        = $user->updatedAt;
+    $this->role             = $user->role;
+    $this->token            = $user->token;
+    $this->email            = $user->email;
+    $this->password         = $user->password;
+    $this->enabled          = $user->enabled;
+    $this->username         = $user->username;
   }
 }
 

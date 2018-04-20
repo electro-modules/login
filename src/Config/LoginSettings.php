@@ -4,7 +4,6 @@ namespace Electro\Plugins\Login\Config;
 use Electro\Plugins\Login\Controllers\LoginController;
 use Electro\Plugins\Login\Controllers\RegisterController;
 use Electro\Plugins\Login\Controllers\ResetPasswordController;
-use Electro\Plugins\Login\ViewModels\Register\Register;
 
 /**
  * Configuration settings for the LoginForms module.
@@ -33,8 +32,9 @@ class LoginSettings
 
   /**
    * @var boolean Activation of account by administrator or not
+   *
    */
-  public $newAccountsRequireApproval = false;
+  public $routeAdminActivateUserOnOff = false;
 
   /**
    * @var string Admin email that will activate account, If empty do not send email to admin
@@ -61,11 +61,6 @@ class LoginSettings
    * @var boolean Defines activation of user (functionality) is active or not
    */
   public $routeActivateUserOnOff = true;
-
-  /**
-   * @var boolean Defines activation of user by admin (functionality) is active or not
-   */
-  public $routeAdminActivateUserOnOff = false;
 
   /**
    * @var boolean Showing rememberMe (keep signed in) checkbox on login page.
@@ -99,7 +94,7 @@ class LoginSettings
    * @var boolean Defines if it is username or email, to log in. If it is "true", email is being used to login, if it
    *      is "false", username is being used to login
    */
-  public $varUserOrEmailOnLogin = true;
+  public $varUserOrEmailOnLogin = false;
 
   public $masterLayout = 'layouts/master.html';
 }
