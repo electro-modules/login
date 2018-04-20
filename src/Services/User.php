@@ -88,39 +88,6 @@ class User extends GenericUser implements UserInterface
     return false;
   }
 
-  public function getFields ()
-  {
-    return [
-      'active'           => $this->active,
-      'id'               => $this->id,
-      'lastLogin'        => $this->lastLogin,
-      'realName'         => $this->realName,
-      'registrationDate' => $this->registrationDate,
-      'updatedAt'        => $this->updatedAt,
-      'role'             => $this->role,
-      'token'            => $this->token,
-      'username'         => $this->username,
-      'email'            => $this->email,
-      'password'         => '',
-      'enabled'          => $this->enabled,
-    ];
-  }
-
-  function mergeFields ($data)
-  {
-    if (exists (get ($data, 'password'))) {
-      $this->password = password_hash (get ($data, 'password'), PASSWORD_BCRYPT);
-    }
-
-    $this->active   = get ($data, 'active', 0);
-    $this->enabled  = get ($data, 'enabled', 1);
-    $this->realName = get ($data, 'realName');
-    $this->email    = get ($data, 'email');
-    $this->token    = get ($data, 'token');
-    $this->username = get ($data, 'username');
-    $this->role     = get ($data, 'role', UserInterface::USER_ROLE_STANDARD);
-  }
-
   function onLogin ()
   {
     $this->lastLogin = date ('Y-m-d H:i:s', time () - 3600);
