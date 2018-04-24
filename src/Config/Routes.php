@@ -33,22 +33,39 @@ class Routes implements RequestHandlerInterface
    */
   function __invoke (ServerRequestInterface $request, ResponseInterface $response, callable $next)
   {
-    $auth          = $this->authenticationSettings;
-    $loginSettings = $this->loginSettings;
+    $auth = $this->authenticationSettings;
+    $st   = $this->loginSettings;
 
     return $this->router
       ->add ([
         $auth->urlPrefix () . '...' => [
           $auth->loginFormUrl () => page ('login/login.html',
-            controller ([$this->loginSettings->loginController, 'onSubmit'])),
+            controller ([$st->loginController, 'onSubmit'])),
 
-          $loginSettings->routeRegister => when ($loginSettings->routeRegisterOnOff,
+          $st->routeRegister => when ($st->routeRegisterOnOff,
             page ('register/register.html',
-              controller ([$this->loginSettings->registerController, 'onSubmitRegister']))),
+              controller ([$st->registerController, 'onSubmitRegister']))),
 
-          $loginSettings->routeResetPassword => when ($loginSettings->routeResetPasswordOnOff,
+          $st->routeResetPassword => when ($st->routeResetPasswordOnOff,
             page ('resetPassword/resetPassword.html',
-              controller ([$this->loginSettings->loginController, 'forgotPassword']))),
+              controller ([$st->loginController, 'forgotPassword']))),
+
+          $st->routeResetPasswordToken => when ($st->routeResetPasswordOnOff, [
+            injectableHandler ([$this->loginSettings->resetPasswordController, 'validateToken']),
+            page ('resetPassword/newPassword.html',
+              controller ([$this->loginSettings->resetPasswordController, 'resetPassword'])),
+          ]),
+
+          $st->routeActivateUserToken => when ($st->routeActivateUserOnOff, [
+            injectableHandler ([$this->loginSettings->resetPasswordController, 'validateToken']),
+            page ('activateUser/activateUser.html'),
+          ]),
+
+          $st->routeAdminActivateUserToken => when ($st->routeAdminActivateUserOnOff, [
+            injectableHandler ([$this->loginSettings->resetPasswordController, 'validateToken']),
+            page ('activateUser/adminActivateUser.html'),
+          ]),
+
         ],
       ])
       ->__invoke ($request, $response, $next);
