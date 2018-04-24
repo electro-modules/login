@@ -6,7 +6,6 @@ use Electro\Authentication\Config\AuthenticationSettings;
 use Electro\Authentication\Lib\GenericUser;
 use Electro\Interfaces\DI\InjectorInterface;
 use Electro\Interfaces\Http\RequestHandlerInterface;
-use Electro\Interfaces\Http\RouterInterface;
 use Electro\Interfaces\Http\Shared\ApplicationRouterInterface;
 use Electro\Interfaces\KernelInterface;
 use Electro\Interfaces\ModuleInterface;
@@ -21,22 +20,7 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class LoginModule implements ModuleInterface, RequestHandlerInterface
 {
-  /** @var AuthenticationSettings */
-  private $authenticationSettings;
-  /**
-   * @var LoginSettings
-   */
-  private $loginSettings;
-  /** @var RouterInterface */
   private $router;
-
-  public function __construct (AuthenticationSettings $authenticationSettings, RouterInterface $router,
-                               LoginSettings $loginSettings)
-  {
-    $this->router                 = $router;
-    $this->authenticationSettings = $authenticationSettings;
-    $this->loginSettings          = $loginSettings;
-  }
 
   static function getCompatibleProfiles ()
   {
@@ -59,7 +43,7 @@ class LoginModule implements ModuleInterface, RequestHandlerInterface
           $localizationSettings->registerTranslations ($moduleInfo);
           $viewEngineSettings->registerViews ($moduleInfo);
           $viewEngineSettings->registerViewModelsNamespace (\Electro\Plugins\Login\ViewModels::class);
-          $applicationRouter->add (self::class, 'login', 'platform');
+          $applicationRouter->add (Routes::class);
           $currentUserModel = $authSettings->userModel ();
           if ($currentUserModel == GenericUser::class)
             $authSettings->userModel (User::class);
@@ -83,6 +67,8 @@ class LoginModule implements ModuleInterface, RequestHandlerInterface
       $array[$auth->urlPrefix () . '...'][$loginSettings->routeRegister] =
         page ('register/register.html', controller ([$this->loginSettings->registerController, 'onSubmitRegister']));
     }
+
+
 
     if ($loginSettings->routeResetPasswordOnOff) {
       $array[$auth->urlPrefix () . '...'][$loginSettings->routeResetPassword]      =

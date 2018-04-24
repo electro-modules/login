@@ -51,7 +51,7 @@ class RegisterController
     $this->loginSettings  = $loginSettings;
   }
 
-  function onSubmitRegister ($data, ServerRequestInterface $request, ResponseInterface $response)
+  function onSubmitRegister ($data)
   {
     $session = $this->session;
     $session->setLang (get ($data, 'lang'));
