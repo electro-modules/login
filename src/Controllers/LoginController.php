@@ -105,6 +105,9 @@ class LoginController
     $response = $redirect->intended ($request->getAttribute ('baseUri'));
 
     if (get ($data, 'remember')) {
+      $token = bin2hex (openssl_random_pseudo_bytes (16));
+      $this->user->mergeFields (['token' => $token]);
+      $this->user->submit ();
       $cookie =
         SetCookie::thatStaysForever ($this->kernelSettings->name . "/" . $this->kernelSettings->rememberMeTokenName,
           $this->user->token,
