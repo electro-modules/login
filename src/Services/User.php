@@ -18,6 +18,8 @@ class User extends GenericUser implements UserInterface
     'password',
   ];
 
+  const CREATED_AT = 'registrationDate';
+  const UPDATED_AT = 'updatedAt';
   public  $active;
   public  $email;
   public  $enabled;

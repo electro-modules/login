@@ -1,5 +1,7 @@
 <?php
+use Electro\Interfaces\UserInterface;
 use Electro\Plugins\IlluminateDatabase\AbstractMigration;
+use Electro\Plugins\Login\Services\User;
 use Illuminate\Database\Schema\Blueprint;
 
 class __CLASS__ extends AbstractMigration
@@ -47,7 +49,7 @@ class __CLASS__ extends AbstractMigration
         $t->boolean ('active')->default (false);
         $t->string ('token', 100);
       });
-      $now = Carbon::now ();
+      $now = date ('Y-m-d H:i:s', time () - 3600);
       $this->db->table ('users')->insert ([
         'username'         => 'admin',
         'password'         => '',
