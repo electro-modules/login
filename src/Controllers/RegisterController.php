@@ -10,33 +10,31 @@ use Electro\Interfaces\SessionInterface;
 use Electro\Interfaces\UserInterface;
 use Electro\Kernel\Config\KernelSettings;
 use Electro\Plugins\Login\Config\LoginSettings;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Swift_Mailer;
 use Swift_Message;
 
 class RegisterController
 {
+  /**
+   * @var KernelSettings
+   */
+  private $kernelSettings;
+  /**
+   * @var LoginSettings
+   */
+  private $loginSettings;
+  /** @var Swift_Mailer */
+  private $mailer;
+  /**
+   * @var NavigationInterface
+   */
+  private $navigation;
   /** @var RedirectionInterface */
   private $redirection;
   /** @var SessionInterface */
   private $session;
   /** @var UserInterface */
   private $user;
-  /** @var Swift_Mailer */
-  private $mailer;
-  /**
-   * @var KernelSettings
-   */
-  private $kernelSettings;
-  /**
-   * @var NavigationInterface
-   */
-  private $navigation;
-  /**
-   * @var LoginSettings
-   */
-  private $loginSettings;
 
   function __construct (SessionInterface $session, UserInterface $user, RedirectionInterface $redirection,
                         \Swift_Mailer $mailer, KernelSettings $kernelSettings, NavigationInterface $navigation,
@@ -60,13 +58,13 @@ class RegisterController
 
     if ($r) return $r;
 
-    $token         = bin2hex (openssl_random_pseudo_bytes (16));
-    $data['token'] = $token;
-    $data['role'] = UserInterface::USER_ROLE_STANDARD;
-    $data['active'] = 0;
+    $token           = bin2hex (openssl_random_pseudo_bytes (16));
+    $data['token']   = $token;
+    $data['role']    = UserInterface::USER_ROLE_STANDARD;
+    $data['active']  = 0;
     $data['enabled'] = 1;
 
-    $this->user->mergeFields($data);
+    $this->user->mergeFields ($data);
     $this->user->submit ();
 
     $return = $this->sendActivationEmail (get ($data, 'email'), $token);

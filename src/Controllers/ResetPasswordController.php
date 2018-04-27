@@ -4,13 +4,12 @@ namespace Electro\Plugins\Login\Controllers;
 
 use Electro\Authentication\Exceptions\AuthenticationException;
 use Electro\Exceptions\FlashType;
-use Electro\Http\Lib\Response;
 use Electro\Interfaces\Http\RedirectionInterface;
 use Electro\Interfaces\Navigation\NavigationInterface;
 use Electro\Interfaces\SessionInterface;
 use Electro\Interfaces\UserInterface;
-use Electro\Kernel\Config\KernelSettings;
 use Electro\Plugins\Login\Config\LoginSettings;
+use Electro\Sessions\Config\SessionSettings;
 use GuzzleHttp\Psr7\ServerRequest;
 use HansOtt\PSR7Cookies\RequestCookies;
 use HansOtt\PSR7Cookies\SetCookie;
@@ -20,9 +19,9 @@ use Psr\Http\Message\ServerRequestInterface;
 class ResetPasswordController
 {
   /**
-   * @var KernelSettings
+   * @var LoginSettings
    */
-  private $kernelSettings;
+  private $loginSettings;
   /**
    * @var NavigationInterface
    */
@@ -31,24 +30,24 @@ class ResetPasswordController
   private $redirection;
   /** @var SessionInterface */
   private $session;
+  /**
+   * @var SessionSettings
+   */
+  private $sessionSettings;
   /** @var UserInterface */
   private $user;
-  /**
-   * @var LoginSettings
-   */
-  private $loginSettings;
 
   function __construct (SessionInterface $session, UserInterface $user, RedirectionInterface $redirection,
-                        \Swift_Mailer $mailer, LoginSettings $loginSettings, KernelSettings $kernelSettings,
-                        NavigationInterface $navigation)
+                        \Swift_Mailer $mailer, LoginSettings $loginSettings,
+                        NavigationInterface $navigation, SessionSettings $sessionSettings)
   {
-    $this->session        = $session;
-    $this->user           = $user;
-    $this->redirection    = $redirection;
-    $this->mailer         = $mailer;
-    $this->loginSettings  = $loginSettings;
-    $this->kernelSettings = $kernelSettings;
-    $this->navigation     = $navigation;
+    $this->session         = $session;
+    $this->user            = $user;
+    $this->redirection     = $redirection;
+    $this->mailer          = $mailer;
+    $this->loginSettings   = $loginSettings;
+    $this->navigation      = $navigation;
+    $this->sessionSettings = $sessionSettings;
   }
 
   /* Verificar Token do url, se é valido ou não, se não for faz redirect para a página de recuperação de palavra-passe base*/
@@ -64,6 +63,7 @@ class ResetPasswordController
   function resetPassword ($data, $token, ServerRequestInterface $request, ResponseInterface $response)
   {
     $redirect = $this->redirection->setRequest ($request);
+    $settings = $this->sessionSettings;
 
     $password  = get ($data, 'password');
     $password2 = get ($data, 'password2');
@@ -86,9 +86,9 @@ class ResetPasswordController
         $serverRequest = ServerRequest::fromGlobals ();
         $cookies       = RequestCookies::createFromRequest ($serverRequest);
 
-        if ($cookies->has ($this->kernelSettings->name . "/" . $this->kernelSettings->rememberMeTokenName)) {
+        if ($cookies->has ($settings->sessionName . "_" . $settings->rememberMeTokenName)) {
           $cookie   =
-            SetCookie::thatStaysForever ($this->kernelSettings->name . "/" . $this->kernelSettings->rememberMeTokenName,
+            SetCookie::thatStaysForever ($settings->sessionName . "_" . $settings->rememberMeTokenName,
               $this->user->token,
               $request->getAttribute ('baseUri'));
           $response = $cookie->addToResponse ($response);

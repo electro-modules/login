@@ -10,6 +10,7 @@ use Electro\Interfaces\SessionInterface;
 use Electro\Interfaces\UserInterface;
 use Electro\Kernel\Config\KernelSettings;
 use Electro\Plugins\Login\Config\LoginSettings;
+use Electro\Sessions\Config\SessionSettings;
 use GuzzleHttp\Psr7\ServerRequest;
 use HansOtt\PSR7Cookies\RequestCookies;
 use HansOtt\PSR7Cookies\SetCookie;
@@ -21,38 +22,43 @@ use Swift_Message;
 
 class LoginController
 {
-  /** @var RedirectionInterface */
-  private $redirection;
-  /** @var SessionInterface */
-  private $session;
-  /** @var UserInterface */
-  private $user;
-  /** @var Swift_Mailer */
-  private $mailer;
   /**
    * @var KernelSettings
    */
   private $kernelSettings;
   /**
-   * @var NavigationInterface
-   */
-  private $navigation;
-  /**
    * @var LoginSettings
    */
   private $loginSettings;
+  /** @var Swift_Mailer */
+  private $mailer;
+  /**
+   * @var NavigationInterface
+   */
+  private $navigation;
+  /** @var RedirectionInterface */
+  private $redirection;
+  /** @var SessionInterface */
+  private $session;
+  /**
+   * @var SessionSettings
+   */
+  private $sessionSettings;
+  /** @var UserInterface */
+  private $user;
 
   function __construct (SessionInterface $session, UserInterface $user, RedirectionInterface $redirection,
                         \Swift_Mailer $mailer, ConnectionsInterface $connections, KernelSettings $kernelSettings,
-                        NavigationInterface $navigation, LoginSettings $loginSettings)
+                        NavigationInterface $navigation, LoginSettings $loginSettings, SessionSettings $sessionSettings)
   {
-    $this->session        = $session;
-    $this->user           = $user;
-    $this->redirection    = $redirection;
-    $this->mailer         = $mailer;
-    $this->kernelSettings = $kernelSettings;
-    $this->navigation     = $navigation;
-    $this->loginSettings  = $loginSettings;
+    $this->session         = $session;
+    $this->user            = $user;
+    $this->redirection     = $redirection;
+    $this->mailer          = $mailer;
+    $this->kernelSettings  = $kernelSettings;
+    $this->navigation      = $navigation;
+    $this->loginSettings   = $loginSettings;
+    $this->sessionSettings = $sessionSettings;
   }
 
   /**
@@ -90,37 +96,11 @@ class LoginController
     }
   }
 
-  function onSubmit ($data, ServerRequestInterface $request, ResponseInterface $response)
-  {
-    $redirect      = $this->redirection->setRequest ($request);
-    $session       = $this->session;
-    $loginSettings = $this->loginSettings;
-    $session->setLang (get ($data, 'lang'));
-
-    if ($loginSettings->varUserOrEmailOnLogin) $usernameEmail = "email";
-    else $usernameEmail = "username";
-
-    $this->doLogin (get ($data, $usernameEmail), get ($data, 'password'));
-
-    $response = $redirect->intended ($request->getAttribute ('baseUri'));
-
-    if (get ($data, 'remember')) {
-      $token = bin2hex (openssl_random_pseudo_bytes (16));
-      $this->user->mergeFields (['token' => $token]);
-      $this->user->submit ();
-      $cookie =
-        SetCookie::thatStaysForever ($this->kernelSettings->name . "/" . $this->kernelSettings->rememberMeTokenName,
-          $this->user->token,
-          $request->getAttribute ('baseUri'));
-      return $cookie->addToResponse ($response);
-    }
-    return $response;
-  }
-
   function forgotPassword ($data, ServerRequestInterface $request)
   {
     $redirect = $this->redirection->setRequest ($request);
     $response = $redirect->to ($this->navigation['login']->url ());
+    $settings = $this->sessionSettings;
 
     if (empty(get ($data, 'email')))
       throw new AuthenticationException('$RECOVERPASS_MISSINGEMAIL_INPUT');
@@ -140,9 +120,9 @@ class LoginController
       $serverRequest = ServerRequest::fromGlobals ();
       $cookies       = RequestCookies::createFromRequest ($serverRequest);
 
-      if ($cookies->has ($this->kernelSettings->name . "/" . $this->kernelSettings->rememberMeTokenName)) {
+      if ($cookies->has ($settings->sessionName . "_" . $settings->rememberMeTokenName)) {
         $cookie   =
-          SetCookie::thatStaysForever ($this->kernelSettings->name . "/" . $this->kernelSettings->rememberMeTokenName,
+          SetCookie::thatStaysForever ($settings->sessionName . "_" . $settings->rememberMeTokenName,
             $this->user->token,
             $request->getAttribute ('baseUri'));
         $response = $cookie->addToResponse ($response);
@@ -153,6 +133,34 @@ class LoginController
       if ($r) return $r;
       return $response;
     }
+  }
+
+  function onSubmit ($data, ServerRequestInterface $request, ResponseInterface $response)
+  {
+    $redirect      = $this->redirection->setRequest ($request);
+    $session       = $this->session;
+    $loginSettings = $this->loginSettings;
+    $session->setLang (get ($data, 'lang'));
+    $settings = $this->sessionSettings;
+
+    if ($loginSettings->varUserOrEmailOnLogin) $usernameEmail = "email";
+    else $usernameEmail = "username";
+
+    $this->doLogin (get ($data, $usernameEmail), get ($data, 'password'));
+
+    $response = $redirect->intended ($request->getAttribute ('baseUri'));
+
+    if (get ($data, 'remember')) {
+      $token = bin2hex (openssl_random_pseudo_bytes (16));
+      $this->user->mergeFields (['token' => $token]);
+      $this->user->submit ();
+      $cookie =
+        SetCookie::thatStaysForever ($settings->sessionName . "_" . $settings->rememberMeTokenName,
+          $this->user->token,
+          $request->getAttribute ('baseUri'));
+      return $cookie->addToResponse ($response);
+    }
+    return $response;
   }
 
   private function sendResetPasswordEmail ($emailTo, $token)
