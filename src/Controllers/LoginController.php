@@ -102,6 +102,10 @@ class LoginController
     $response = $redirect->to ($this->navigation['login']->url ());
     $settings = $this->sessionSettings;
 
+    $sessionName = $settings->sessionName;
+    $rememberMeTokenName = $settings->rememberMeTokenName;
+    $cookieName = $sessionName . "_" . $rememberMeTokenName;
+
     if (empty(get ($data, 'email')))
       throw new AuthenticationException('$RECOVERPASS_MISSINGEMAIL_INPUT');
     else if (!filter_var (get ($data, 'email'),
@@ -119,9 +123,9 @@ class LoginController
 
       $cookies = RequestCookies::createFromRequest ($request);
 
-      if ($cookies->has ($settings->sessionName . "_" . $settings->rememberMeTokenName)) {
+      if ($cookies->has ($cookieName)) {
         $cookie   =
-          SetCookie::thatStaysForever ($settings->sessionName . "_" . $settings->rememberMeTokenName,
+          SetCookie::thatStaysForever ($$cookieName,
             $this->user->token,
             $request->getAttribute ('baseUri'));
         $response = $cookie->addToResponse ($response);
@@ -154,7 +158,7 @@ class LoginController
       $this->user->mergeFields (['token' => $token]);
       $this->user->submit ();
       $cookie =
-        SetCookie::thatStaysForever ($settings->sessionName . "_" . $settings->rememberMeTokenName,
+        SetCookie::thatStaysForever ($cookieName,
           $this->user->token,
           $request->getAttribute ('baseUri'));
       return $cookie->addToResponse ($response);

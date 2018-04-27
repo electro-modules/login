@@ -68,6 +68,10 @@ class ResetPasswordController
     $password  = get ($data, 'password');
     $password2 = get ($data, 'password2');
 
+    $sessionName = $settings->sessionName;
+    $rememberMeTokenName = $settings->rememberMeTokenName;
+    $cookieName = $sessionName . "_" . $rememberMeTokenName;
+
     $response = $redirect->to ($this->navigation['login']->url ());
 
     if (empty($password) || empty($password2))
@@ -85,9 +89,9 @@ class ResetPasswordController
 
         $cookies       = RequestCookies::createFromRequest ($request);
 
-        if ($cookies->has ($settings->sessionName . "_" . $settings->rememberMeTokenName)) {
+        if ($cookies->has ($cookieName)) {
           $cookie   =
-            SetCookie::thatStaysForever ($settings->sessionName . "_" . $settings->rememberMeTokenName,
+            SetCookie::thatStaysForever ($cookieName,
               $this->user->token,
               $request->getAttribute ('baseUri'));
           $response = $cookie->addToResponse ($response);
