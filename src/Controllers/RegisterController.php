@@ -131,12 +131,8 @@ HTML;
 
       $result = $this->mailer->send ($oMessage);
 
-      if ($result == 1) {
-        return $this->session->flashMessage ('$ACTIVATEUSER_EMAILACTIVATION', FlashType::SUCCESS);
-      }
-      else {
-        throw new AuthenticationException('$ACTIVATEUSER_EMAILACTIVATION_ERROR', FlashType::ERROR);
-      }
+      if ($result == 1) return $this->session->flashMessage ('$ACTIVATEUSER_EMAILACTIVATION', FlashType::SUCCESS);
+      else throw new AuthenticationException('$ACTIVATEUSER_EMAILACTIVATION_ERROR', FlashType::ERROR);
     }
     else throw new RuntimeException('$ERROR_MAIL_SENDER_ENV');
   }
