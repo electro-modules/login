@@ -8,6 +8,7 @@ use Electro\Interfaces\UserInterface;
 use Electro\Interop\ViewModel;
 use Electro\Kernel\Config\KernelSettings;
 use Electro\Plugins\Login\Config\LoginSettings;
+use Lurker\Exception\RuntimeException;
 use PhpKit\ExtPDO\Interfaces\ConnectionsInterface;
 use Swift_Message;
 
@@ -96,11 +97,16 @@ HTML;
 
     $oMessage = Swift_Message::newInstance($sSubject, $sBody);
 
-    $oMessage->setFrom([env('EMAIL_SENDER_ADDR') => env('EMAIL_SENDER_NAME')])
-      ->setTo($emailTo)
-      ->setBody($sBody)
-      ->setContentType('text/html');
+    if ((env ('EMAIL_SENDER_ADDR') != '') && (env ('EMAIL_SENDER_NAME') != '') && (env ('EMAIL_SMTP_HOST') != '') &&
+        (env ('EMAIL_SMTP_USERNAME') != '') && (env ('EMAIL_SMTP_PASSWORD') != '')
+    ){
+      $oMessage->setFrom([env('EMAIL_SENDER_ADDR') => env('EMAIL_SENDER_NAME')])
+               ->setTo($emailTo)
+               ->setBody($sBody)
+               ->setContentType('text/html');
 
-    $result = $this->mailer->send($oMessage);
+      $result = $this->mailer->send($oMessage);
+    }
+    else throw new RuntimeException('$ERROR_MAIL_SENDER_ENV');
   }
 }

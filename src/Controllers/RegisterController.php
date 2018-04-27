@@ -10,6 +10,7 @@ use Electro\Interfaces\SessionInterface;
 use Electro\Interfaces\UserInterface;
 use Electro\Kernel\Config\KernelSettings;
 use Electro\Plugins\Login\Config\LoginSettings;
+use Lurker\Exception\RuntimeException;
 use Swift_Mailer;
 use Swift_Message;
 
@@ -92,12 +93,17 @@ class RegisterController
     else if (!filter_var (get ($data, 'email'), FILTER_VALIDATE_EMAIL))
       throw new AuthenticationException('$REGISTER_ERROR_VALIDATE_EMAIL', FlashType::WARNING);
     else if (!$this->loginSettings->varUserOrEmailOnLogin) {
-      if ($this->user->findByName (get ($data, 'username')))
-        throw new AuthenticationException('$REGISTER_ERROR_USERNAME_NOTUNIQUE', FlashType::ERROR);
+      if ($this->user->findByName (get ($data, 'username'))) {
+        if ($this->user->active != 0) throw new AuthenticationException('$REGISTER_ERROR_USERNAME_NOTUNIQUE',
+          FlashType::ERROR);
+      }
     }
     else if ($this->user->findByEmail (get ($data,
       'email'))
-    ) throw new AuthenticationException('$REGISTER_ERROR_EMAIL_NOTUNIQUE', FlashType::ERROR);
+    ) {
+      if ($this->user->active != 0) throw new AuthenticationException('$REGISTER_ERROR_EMAIL_NOTUNIQUE',
+        FlashType::ERROR);
+    }
   }
 
   private function sendActivationEmail ($emailTo, $token)
@@ -115,21 +121,26 @@ HTML;
 
     $oMessage = Swift_Message::newInstance ($sSubject, $sBody);
 
-    $oMessage->setFrom ([env ('EMAIL_SENDER_ADDR') => env ('EMAIL_SENDER_NAME')])
-             ->setTo ($emailTo)
-             ->setBody ($sBody)
-             ->setContentType ('text/html');
+    if ((env ('EMAIL_SENDER_ADDR') != '') && (env ('EMAIL_SENDER_NAME') != '') && (env ('EMAIL_SMTP_HOST') != '') &&
+        (env ('EMAIL_SMTP_USERNAME') != '') && (env ('EMAIL_SMTP_PASSWORD') != '')
+    ) {
+      $oMessage->setFrom ([env ('EMAIL_SENDER_ADDR') => env ('EMAIL_SENDER_NAME')])
+               ->setTo ($emailTo)
+               ->setBody ($sBody)
+               ->setContentType ('text/html');
 
-    $result = $this->mailer->send ($oMessage);
+      $result = $this->mailer->send ($oMessage);
 
-    if ($result == 1) {
-      return $this->session->flashMessage ('$ACTIVATEUSER_EMAILACTIVATION', FlashType::SUCCESS);
+      if ($result == 1) {
+        return $this->session->flashMessage ('$ACTIVATEUSER_EMAILACTIVATION', FlashType::SUCCESS);
+      }
+      else {
+        $this->user->findByEmail ($emailTo);
+        $this->user->remove ();
+        throw new AuthenticationException('$ACTIVATEUSER_EMAILACTIVATION_ERROR', FlashType::ERROR);
+      }
     }
-    else {
-      $this->user->findByEmail ($emailTo);
-      $this->user->remove ();
-      throw new AuthenticationException('$ACTIVATEUSER_EMAILACTIVATION_ERROR', FlashType::ERROR);
-    }
+    else throw new RuntimeException('$ERROR_MAIL_SENDER_ENV');
   }
 }
 

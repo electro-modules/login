@@ -83,8 +83,7 @@ class ResetPasswordController
           $this->session->setUser ($this->user);
         }
 
-        $serverRequest = ServerRequest::fromGlobals ();
-        $cookies       = RequestCookies::createFromRequest ($serverRequest);
+        $cookies       = RequestCookies::createFromRequest ($request);
 
         if ($cookies->has ($settings->sessionName . "_" . $settings->rememberMeTokenName)) {
           $cookie   =

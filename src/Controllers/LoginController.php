@@ -11,9 +11,9 @@ use Electro\Interfaces\UserInterface;
 use Electro\Kernel\Config\KernelSettings;
 use Electro\Plugins\Login\Config\LoginSettings;
 use Electro\Sessions\Config\SessionSettings;
-use GuzzleHttp\Psr7\ServerRequest;
 use HansOtt\PSR7Cookies\RequestCookies;
 use HansOtt\PSR7Cookies\SetCookie;
+use Lurker\Exception\RuntimeException;
 use PhpKit\ExtPDO\Interfaces\ConnectionsInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -117,8 +117,7 @@ class LoginController
       $token = bin2hex (openssl_random_pseudo_bytes (16));
       $this->user->mergeFields (['token' => $token]);
 
-      $serverRequest = ServerRequest::fromGlobals ();
-      $cookies       = RequestCookies::createFromRequest ($serverRequest);
+      $cookies = RequestCookies::createFromRequest ($request);
 
       if ($cookies->has ($settings->sessionName . "_" . $settings->rememberMeTokenName)) {
         $cookie   =
@@ -177,18 +176,22 @@ class LoginController
 HTML;
 
     $oMessage = Swift_Message::newInstance ($sSubject, $sBody);
+    if ((env ('EMAIL_SENDER_ADDR') != '') && (env ('EMAIL_SENDER_NAME') != '') && (env ('EMAIL_SMTP_HOST') != '') &&
+        (env ('EMAIL_SMTP_USERNAME') != '') && (env ('EMAIL_SMTP_PASSWORD') != '')
+    ) {
+      $oMessage->setFrom ([env ('EMAIL_SENDER_ADDR') => env ('EMAIL_SENDER_NAME')])
+               ->setTo ($emailTo)
+               ->setBody ($sBody)
+               ->setContentType ('text/html');
 
-    $oMessage->setFrom ([env ('EMAIL_SENDER_ADDR') => env ('EMAIL_SENDER_NAME')])
-             ->setTo ($emailTo)
-             ->setBody ($sBody)
-             ->setContentType ('text/html');
+      $result = $this->mailer->send ($oMessage);
 
-    $result = $this->mailer->send ($oMessage);
-
-    if ($result == 1) {
-      return $this->session->flashMessage ('$RECOVERPASS_SUCCESS_EMAIL', FlashType::SUCCESS);
+      if ($result == 1) {
+        return $this->session->flashMessage ('$RECOVERPASS_SUCCESS_EMAIL', FlashType::SUCCESS);
+      }
+      throw new AuthenticationException('$RECOVERPASS_ERROR_EMAIL', FlashType::ERROR);
     }
-    throw new AuthenticationException('$RECOVERPASS_ERROR_EMAIL', FlashType::ERROR);
+    else throw new RuntimeException('$ERROR_MAIL_SENDER_ENV');
   }
 }
 
