@@ -101,10 +101,7 @@ class LoginController
     $redirect = $this->redirection->setRequest ($request);
     $response = $redirect->to ($this->navigation['login']->url ());
     $settings = $this->sessionSettings;
-
-    $sessionName = $settings->sessionName;
-    $rememberMeTokenName = $settings->rememberMeTokenName;
-    $cookieName = $sessionName . "_" . $rememberMeTokenName;
+    $cookieName = $settings->sessionName . "_" . $settings->rememberMeTokenName;
 
     if (empty(get ($data, 'email')))
       throw new AuthenticationException('$RECOVERPASS_MISSINGEMAIL_INPUT');
@@ -145,6 +142,7 @@ class LoginController
     $loginSettings = $this->loginSettings;
     $session->setLang (get ($data, 'lang'));
     $settings = $this->sessionSettings;
+    $cookieName = $settings->sessionName . "_" . $settings->rememberMeTokenName;
 
     if ($loginSettings->varUserOrEmailOnLogin) $usernameEmail = "email";
     else $usernameEmail = "username";

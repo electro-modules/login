@@ -10,7 +10,6 @@ use Electro\Interfaces\SessionInterface;
 use Electro\Interfaces\UserInterface;
 use Electro\Plugins\Login\Config\LoginSettings;
 use Electro\Sessions\Config\SessionSettings;
-use GuzzleHttp\Psr7\ServerRequest;
 use HansOtt\PSR7Cookies\RequestCookies;
 use HansOtt\PSR7Cookies\SetCookie;
 use Psr\Http\Message\ResponseInterface;
@@ -62,15 +61,11 @@ class ResetPasswordController
 
   function resetPassword ($data, $token, ServerRequestInterface $request, ResponseInterface $response)
   {
-    $redirect = $this->redirection->setRequest ($request);
-    $settings = $this->sessionSettings;
-
-    $password  = get ($data, 'password');
-    $password2 = get ($data, 'password2');
-
-    $sessionName = $settings->sessionName;
-    $rememberMeTokenName = $settings->rememberMeTokenName;
-    $cookieName = $sessionName . "_" . $rememberMeTokenName;
+    $redirect   = $this->redirection->setRequest ($request);
+    $settings   = $this->sessionSettings;
+    $password   = get ($data, 'password');
+    $password2  = get ($data, 'password2');
+    $cookieName = $settings->sessionName . "_" . $settings->rememberMeTokenName;
 
     $response = $redirect->to ($this->navigation['login']->url ());
 
@@ -87,7 +82,7 @@ class ResetPasswordController
           $this->session->setUser ($this->user);
         }
 
-        $cookies       = RequestCookies::createFromRequest ($request);
+        $cookies = RequestCookies::createFromRequest ($request);
 
         if ($cookies->has ($cookieName)) {
           $cookie   =
