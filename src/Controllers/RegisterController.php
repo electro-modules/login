@@ -135,8 +135,6 @@ HTML;
         return $this->session->flashMessage ('$ACTIVATEUSER_EMAILACTIVATION', FlashType::SUCCESS);
       }
       else {
-        $this->user->findByEmail ($emailTo);
-        $this->user->remove ();
         throw new AuthenticationException('$ACTIVATEUSER_EMAILACTIVATION_ERROR', FlashType::ERROR);
       }
     }
