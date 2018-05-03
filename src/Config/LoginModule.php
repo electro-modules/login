@@ -61,9 +61,11 @@ class LoginModule implements ModuleInterface, RequestHandlerInterface
   function __invoke (ServerRequestInterface $request, ResponseInterface $response, callable $next)
   {
     $auth = $this->authenticationSettings;
+    $base = $auth->urlPrefix ();
+    $base = $base ? "$base..." : '*';
     return $this->router
       ->set ([
-        $auth->urlPrefix () . '...' => [
+        $base => [
           $auth->loginFormUrl () => page ('login/login.html', controller ($this->loginSettings->controller)),
         ],
       ])
