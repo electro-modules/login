@@ -1,6 +1,7 @@
 <?php
 namespace Electro\Plugins\Login\Controllers\Login;
 
+use Electro\Authentication\Config\AuthenticationSettings;
 use Electro\Authentication\Exceptions\AuthenticationException;
 use Electro\Interfaces\Http\RedirectionInterface;
 use Electro\Interfaces\SessionInterface;
@@ -15,12 +16,15 @@ class LoginController
   private $session;
   /** @var UserInterface */
   private $user;
+  /** @var AuthenticationSettings */
+  private $authSettings;
 
-  function __construct (SessionInterface $session, UserInterface $user, RedirectionInterface $redirection)
+  function __construct (SessionInterface $session, UserInterface $user, RedirectionInterface $redirection, AuthenticationSettings $authenticationSettings)
   {
     $this->session     = $session;
     $this->user        = $user;
     $this->redirection = $redirection;
+    $this->authSettings = $authenticationSettings;
   }
 
   /**
@@ -58,7 +62,7 @@ class LoginController
       $session->setLang ($data['lang']);
 
     $this->doLogin ($data['username'], $data['password']);
-      return $redirect->intended ($request->getAttribute ('baseUri'));
+      return $redirect->intended ($request->getAttribute ('baseUri') . '/' . $this->authSettings->urlPrefix());
   }
 
 }
