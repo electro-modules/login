@@ -95,7 +95,7 @@ class ActivateUser extends ViewModel
 </p>
 HTML;
 
-    $oMessage = Swift_Message::newInstance($sSubject, $sBody);
+    $oMessage = new Swift_Message($sSubject, $sBody);
 
     if ((env ('EMAIL_SENDER_ADDR') != '') && (env ('EMAIL_SENDER_NAME') != '') && (env ('EMAIL_SMTP_HOST') != '') &&
         (env ('EMAIL_SMTP_USERNAME') != '') && (env ('EMAIL_SMTP_PASSWORD') != '')
