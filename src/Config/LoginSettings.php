@@ -86,15 +86,24 @@ class LoginSettings
 
   public $routeAdminActivateUserToken = "adminactivateuser/@token";
 
-  /*
-   * Variable names
-   */
-
   /**
-   * @var boolean Defines if it is username or email, to log in. If it is "true", email is being used to login, if it
-   *      is "false", username is being used to login
+   * @var boolean Defines which field is used for logging in: true = email, false = username.
    */
   public $varUserOrEmailOnLogin = false;
+
+  /**
+   * @var bool When true, the email field is displayed on the user form and on the users' grid.
+   *           Note: if you want to use registration, account activation or password reset, or if you set
+   *           varUserOrEmailOnLogin to true, you should display the email field, as it is required for the proper
+   *           functioning of those features.
+   */
+  public $displayEmail = true;
+
+  /**
+   * @var bool When true, the username field is displayed on the user form and on the users' grid.
+   *           Note: if you set varUserOrEmailOnLogin to false, you should display the username field.
+   */
+  public $displayUsername = true;
 
   public $masterLayout = 'layouts/master.html';
 }

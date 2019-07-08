@@ -141,33 +141,46 @@ class LoginController
     }
   }
 
+  /**
+   * @param array                  $data
+   * @param ServerRequestInterface $request
+   * @param ResponseInterface      $response
+   * @return ResponseInterface
+   * @throws AuthenticationException
+   */
   function onSubmit ($data, ServerRequestInterface $request, ResponseInterface $response)
   {
-    $redirect      = $this->redirection->setRequest ($request);
-    $session       = $this->session;
-    $loginSettings = $this->loginSettings;
-    $session->setLang (get ($data, 'lang'));
-    $settings = $this->sessionSettings;
-    $cookieName = $settings->sessionName . "_" . $settings->rememberMeTokenName;
+    try {
+      $redirect      = $this->redirection->setRequest ($request);
+      $session       = $this->session;
+      $loginSettings = $this->loginSettings;
+      $session->setLang (get ($data, 'lang'));
+      $settings   = $this->sessionSettings;
+      $cookieName = $settings->sessionName . "_" . $settings->rememberMeTokenName;
 
-    if ($loginSettings->varUserOrEmailOnLogin) $usernameEmail = "email";
-    else $usernameEmail = "username";
+      if ($loginSettings->varUserOrEmailOnLogin) $usernameEmail = "email";
+      else $usernameEmail = "username";
 
-    $this->doLogin (get ($data, $usernameEmail), get ($data, 'password'));
+      $this->doLogin (get ($data, $usernameEmail), get ($data, 'password'));
 
-    $response = $redirect->intended ($request->getAttribute ('baseUri') . '/' . $this->authSettings->urlPrefix());
+      $response = $redirect->intended ($request->getAttribute ('baseUri') . '/' . $this->authSettings->urlPrefix ());
 
-    if (get ($data, 'remember')) {
-      $token = bin2hex (openssl_random_pseudo_bytes (16));
-      $this->user->mergeFields (['token' => $token]);
-      $this->user->submit ();
-      $cookie =
-        SetCookie::thatStaysForever ($cookieName,
-          $this->user->token,
-          $request->getAttribute ('baseUri'));
-      return $cookie->addToResponse ($response);
+      if (get ($data, 'remember')) {
+        $token = bin2hex (openssl_random_pseudo_bytes (16));
+        $this->user->mergeFields (['token' => $token]);
+        $this->user->submit ();
+        $cookie =
+          SetCookie::thatStaysForever ($cookieName,
+            $this->user->token,
+            $request->getAttribute ('baseUri'));
+        return $cookie->addToResponse ($response);
+      }
+      return $response;
     }
-    return $response;
+    catch (AuthenticationException $e) {
+      $this->session->reflashPreviousUrl ();
+      throw $e;
+    }
   }
 
   private function sendResetPasswordEmail ($emailTo, $token)
