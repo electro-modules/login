@@ -1,11 +1,11 @@
 <?php
 namespace Electro\Plugins\Login\Controllers\Login;
 
-use Electro\Authentication\Config\AuthenticationSettings;
 use Electro\Authentication\Exceptions\AuthenticationException;
 use Electro\Interfaces\Http\RedirectionInterface;
 use Electro\Interfaces\SessionInterface;
 use Electro\Interfaces\UserInterface;
+use Electro\Plugins\Login\Config\LoginSettings;
 use Psr\Http\Message\ServerRequestInterface;
 
 class LoginController
@@ -16,16 +16,18 @@ class LoginController
   private $session;
   /** @var UserInterface */
   private $user;
-  /** @var AuthenticationSettings */
-  private $authSettings;
+	/**
+	 * @var LoginSettings
+	 */
+	private $loginSettings;
 
-  function __construct (SessionInterface $session, UserInterface $user, RedirectionInterface $redirection, AuthenticationSettings $authenticationSettings)
+	function __construct (SessionInterface $session, UserInterface $user, RedirectionInterface $redirection, LoginSettings $loginSettings)
   {
     $this->session     = $session;
     $this->user        = $user;
     $this->redirection = $redirection;
-    $this->authSettings = $authenticationSettings;
-  }
+		$this->loginSettings = $loginSettings;
+	}
 
   /**
    * Attempts to log in the user with the given credentials.
@@ -62,7 +64,7 @@ class LoginController
       $session->setLang ($data['lang']);
 
     $this->doLogin ($data['username'], $data['password']);
-      return $redirect->intended ($request->getAttribute ('baseUri') . '/' . $this->authSettings->urlPrefix());
+		return $redirect->intended ($request->getAttribute ('baseUri') . $this->loginSettings->urlRedirectAfterLogin);
   }
 
 }

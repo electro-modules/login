@@ -14,4 +14,9 @@ class LoginSettings
   public $title;
 
   public $controller = [LoginController::class,'onSubmit'];
+
+	/**
+	 * @var string Defines which url is used for redirecting after login
+	 */
+	public $urlRedirectAfterLogin = "/admin";
 }
