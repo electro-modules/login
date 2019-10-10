@@ -47,14 +47,10 @@ class LoginController
   private $sessionSettings;
   /** @var UserInterface */
   private $user;
-  /**
-	 * @var AuthenticationSettings
-	 */
-	private $authSettings;
 
 	function __construct (SessionInterface $session, UserInterface $user, RedirectionInterface $redirection,
                         \Swift_Mailer $mailer, ConnectionsInterface $connections, KernelSettings $kernelSettings,
-                        NavigationInterface $navigation, LoginSettings $loginSettings, SessionSettings $sessionSettings, AuthenticationSettings $authenticationSettings)
+                        NavigationInterface $navigation, LoginSettings $loginSettings, SessionSettings $sessionSettings)
   {
     $this->session         = $session;
     $this->user            = $user;
@@ -64,7 +60,6 @@ class LoginController
     $this->navigation      = $navigation;
     $this->loginSettings   = $loginSettings;
     $this->sessionSettings = $sessionSettings;
-    $this->authSettings 	 = $authenticationSettings;
 	}
 
   /**
@@ -163,7 +158,7 @@ class LoginController
 
       $this->doLogin (get ($data, $usernameEmail), get ($data, 'password'));
 
-      $response = $redirect->intended ($request->getAttribute ('baseUri') . '/' . $this->authSettings->urlPrefix ());
+      $response = $redirect->intended ($request->getAttribute ('baseUri') . $this->loginSettings->urlRedirectAfterLogin);
 
       if (get ($data, 'remember')) {
         $token = bin2hex (openssl_random_pseudo_bytes (16));

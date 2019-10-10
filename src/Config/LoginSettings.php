@@ -86,6 +86,11 @@ class LoginSettings
 
   public $routeAdminActivateUserToken = "adminactivateuser/@token";
 
+	/**
+	 * @var string Defines which url is used for redirecting after login
+	 */
+	public $urlRedirectAfterLogin = "/admin";
+
   /**
    * @var boolean Defines which field is used for logging in: true = email, false = username.
    */
