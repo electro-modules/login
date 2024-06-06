@@ -21,8 +21,8 @@
   "homepage": "https://github.com/electro-plugins/login",
   "require": {
     "php": ">=5.6.0",
-    "electro/installers": "^1.0.0",
-    "electro-modules/matisse": "^1.0.0"
+    "electro/installers": "dev-latest",
+    "electro-modules/matisse": "dev-latest"
   },
   "autoload": {
     "psr-4": {
