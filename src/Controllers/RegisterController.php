@@ -11,8 +11,8 @@ use Electro\Interfaces\UserInterface;
 use Electro\Kernel\Config\KernelSettings;
 use Electro\Plugins\Login\Config\LoginSettings;
 use Lurker\Exception\RuntimeException;
-use Swift_Mailer;
-use Swift_Message;
+use PHPMailer\PHPMailer\Exception as PHPMailerException;
+use PHPMailer\PHPMailer\PHPMailer;
 
 class RegisterController
 {
@@ -24,7 +24,7 @@ class RegisterController
    * @var LoginSettings
    */
   private $loginSettings;
-  /** @var Swift_Mailer */
+  /** @var PHPMailer */
   private $mailer;
   /**
    * @var NavigationInterface
@@ -38,7 +38,7 @@ class RegisterController
   private $user;
 
   function __construct (SessionInterface $session, UserInterface $user, RedirectionInterface $redirection,
-                        \Swift_Mailer $mailer, KernelSettings $kernelSettings, NavigationInterface $navigation,
+                        PHPMailer $mailer, KernelSettings $kernelSettings, NavigationInterface $navigation,
                         LoginSettings $loginSettings)
   {
     $this->session        = $session;
@@ -119,19 +119,32 @@ class RegisterController
 </p>
 HTML;
 
-    $oMessage = new Swift_Message ($sSubject, $sBody);
-
     if ((env ('EMAIL_SENDER_ADDR') != '') && (env ('EMAIL_SENDER_NAME') != '') && (env ('EMAIL_SMTP_HOST') != '') &&
         (env ('EMAIL_SMTP_USERNAME') != '') && (env ('EMAIL_SMTP_PASSWORD') != '')
     ) {
-      $oMessage->setFrom ([env ('EMAIL_SENDER_ADDR') => env ('EMAIL_SENDER_NAME')])
-               ->setTo ($emailTo)
-               ->setBody ($sBody)
-               ->setContentType ('text/html');
+      try {
+        $mailer = $this->mailer;
+        $mailer->clearAllRecipients ();
+        $mailer->isSMTP ();
+        $mailer->Host       = env ('EMAIL_SMTP_HOST');
+        $mailer->SMTPAuth   = true;
+        $mailer->Username   = env ('EMAIL_SMTP_USERNAME');
+        $mailer->Password   = env ('EMAIL_SMTP_PASSWORD');
+        $mailer->Port       = (int)(env ('EMAIL_SMTP_PORT') ?: 587);
+        $mailer->SMTPSecure = env ('EMAIL_SMTP_SECURE') ?: PHPMailer::ENCRYPTION_STARTTLS;
+        $mailer->CharSet    = PHPMailer::CHARSET_UTF8;
+        $mailer->setFrom (env ('EMAIL_SENDER_ADDR'), env ('EMAIL_SENDER_NAME'));
+        $mailer->addAddress ($emailTo);
+        $mailer->isHTML (true);
+        $mailer->Subject = $sSubject;
+        $mailer->Body    = $sBody;
+        $result = $mailer->send ();
+      }
+      catch (PHPMailerException $e) {
+        $result = false;
+      }
 
-      $result = $this->mailer->send ($oMessage);
-
-      if ($result == 1) return $this->session->flashMessage ('$ACTIVATEUSER_EMAILACTIVATION', FlashType::SUCCESS);
+      if ($result) return $this->session->flashMessage ('$ACTIVATEUSER_EMAILACTIVATION', FlashType::SUCCESS);
       else throw new AuthenticationException('$ACTIVATEUSER_EMAILACTIVATION_ERROR', FlashType::ERROR);
     }
     else throw new RuntimeException('$ERROR_MAIL_SENDER_ENV');

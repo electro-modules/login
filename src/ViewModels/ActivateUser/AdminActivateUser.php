@@ -8,6 +8,7 @@ use Electro\Interfaces\UserInterface;
 use Electro\Interop\ViewModel;
 use Electro\Kernel\Config\KernelSettings;
 use Electro\Plugins\Login\Config\LoginSettings;
+use PHPMailer\PHPMailer\PHPMailer;
 
 class AdminActivateUser extends ViewModel
 {
@@ -18,7 +19,7 @@ class AdminActivateUser extends ViewModel
   private $user;
 
   public function __construct (SessionInterface $session, LoginSettings $loginSettings, KernelSettings $kernelSettings,
-                               NavigationInterface $navigation, \Swift_Mailer $mailer, UserInterface $user)
+                               NavigationInterface $navigation, PHPMailer $mailer, UserInterface $user)
   {
     parent::__construct ();
     $this->loginSettings = $loginSettings;

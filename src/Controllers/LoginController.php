@@ -18,8 +18,8 @@ use Lurker\Exception\RuntimeException;
 use PhpKit\ExtPDO\Interfaces\ConnectionsInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Swift_Mailer;
-use Swift_Message;
+use PHPMailer\PHPMailer\Exception as PHPMailerException;
+use PHPMailer\PHPMailer\PHPMailer;
 
 class LoginController
 {
@@ -31,7 +31,7 @@ class LoginController
    * @var LoginSettings
    */
   private $loginSettings;
-  /** @var Swift_Mailer */
+  /** @var PHPMailer */
   private $mailer;
   /**
    * @var NavigationInterface
@@ -49,7 +49,7 @@ class LoginController
   private $user;
 
 	function __construct (SessionInterface $session, UserInterface $user, RedirectionInterface $redirection,
-                        \Swift_Mailer $mailer, ConnectionsInterface $connections, KernelSettings $kernelSettings,
+                        PHPMailer $mailer, ConnectionsInterface $connections, KernelSettings $kernelSettings,
                         NavigationInterface $navigation, LoginSettings $loginSettings, SessionSettings $sessionSettings)
   {
     $this->session         = $session;
@@ -191,18 +191,32 @@ class LoginController
 </p>
 HTML;
 
-    $oMessage = new Swift_Message($sSubject, $sBody);
     if ((env ('EMAIL_SENDER_ADDR') != '') && (env ('EMAIL_SENDER_NAME') != '') && (env ('EMAIL_SMTP_HOST') != '') &&
         (env ('EMAIL_SMTP_USERNAME') != '') && (env ('EMAIL_SMTP_PASSWORD') != '')
     ) {
-      $oMessage->setFrom ([env ('EMAIL_SENDER_ADDR') => env ('EMAIL_SENDER_NAME')])
-               ->setTo ($emailTo)
-               ->setBody ($sBody)
-               ->setContentType ('text/html');
+      try {
+        $mailer = $this->mailer;
+        $mailer->clearAllRecipients ();
+        $mailer->isSMTP ();
+        $mailer->Host       = env ('EMAIL_SMTP_HOST');
+        $mailer->SMTPAuth   = true;
+        $mailer->Username   = env ('EMAIL_SMTP_USERNAME');
+        $mailer->Password   = env ('EMAIL_SMTP_PASSWORD');
+        $mailer->Port       = (int)(env ('EMAIL_SMTP_PORT') ?: 587);
+        $mailer->SMTPSecure = env ('EMAIL_SMTP_SECURE') ?: PHPMailer::ENCRYPTION_STARTTLS;
+        $mailer->CharSet    = PHPMailer::CHARSET_UTF8;
+        $mailer->setFrom (env ('EMAIL_SENDER_ADDR'), env ('EMAIL_SENDER_NAME'));
+        $mailer->addAddress ($emailTo);
+        $mailer->isHTML (true);
+        $mailer->Subject = $sSubject;
+        $mailer->Body    = $sBody;
+        $result = $mailer->send ();
+      }
+      catch (PHPMailerException $e) {
+        $result = false;
+      }
 
-      $result = $this->mailer->send ($oMessage);
-
-      if ($result == 1) {
+      if ($result) {
         return $this->session->flashMessage ('$RECOVERPASS_SUCCESS_EMAIL', FlashType::SUCCESS);
       }
       throw new AuthenticationException('$RECOVERPASS_ERROR_EMAIL', FlashType::ERROR);

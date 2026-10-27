@@ -22,7 +22,8 @@
   "require": {
     "php": ">=5.6.0",
     "electro/installers": "dev-latest",
-    "electro-modules/matisse": "dev-latest"
+    "electro-modules/matisse": "dev-latest",
+    "phpmailer/phpmailer": "*"
   },
   "autoload": {
     "psr-4": {

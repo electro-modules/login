@@ -12,6 +12,7 @@ use Electro\Plugins\Login\Config\LoginSettings;
 use Electro\Sessions\Config\SessionSettings;
 use HansOtt\PSR7Cookies\RequestCookies;
 use HansOtt\PSR7Cookies\SetCookie;
+use PHPMailer\PHPMailer\PHPMailer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -37,7 +38,7 @@ class ResetPasswordController
   private $user;
 
   function __construct (SessionInterface $session, UserInterface $user, RedirectionInterface $redirection,
-                        \Swift_Mailer $mailer, LoginSettings $loginSettings,
+                        PHPMailer $mailer, LoginSettings $loginSettings,
                         NavigationInterface $navigation, SessionSettings $sessionSettings)
   {
     $this->session         = $session;
