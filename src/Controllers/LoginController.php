@@ -12,7 +12,6 @@ use Electro\Interfaces\UserInterface;
 use Electro\Kernel\Config\KernelSettings;
 use Electro\Plugins\Login\Config\LoginSettings;
 use Electro\Sessions\Config\SessionSettings;
-use HansOtt\PSR7Cookies\RequestCookies;
 use HansOtt\PSR7Cookies\SetCookie;
 use Lurker\Exception\RuntimeException;
 use PhpKit\ExtPDO\Interfaces\ConnectionsInterface;
@@ -119,11 +118,11 @@ class LoginController
       $token = bin2hex (openssl_random_pseudo_bytes (16));
       $this->user->mergeFields (['token' => $token]);
 
-      $cookies = RequestCookies::createFromRequest ($request);
+      $cookies = $request->getCookieParams ();
 
-      if ($cookies->has ($cookieName)) {
+      if (array_key_exists ($cookieName, $cookies)) {
         $cookie   =
-          SetCookie::thatStaysForever ($$cookieName,
+          SetCookie::thatStaysForever ($cookieName,
             $this->user->token,
             $request->getAttribute ('baseUri'));
         $response = $cookie->addToResponse ($response);

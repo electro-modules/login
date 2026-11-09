@@ -10,7 +10,6 @@ use Electro\Interfaces\SessionInterface;
 use Electro\Interfaces\UserInterface;
 use Electro\Plugins\Login\Config\LoginSettings;
 use Electro\Sessions\Config\SessionSettings;
-use HansOtt\PSR7Cookies\RequestCookies;
 use HansOtt\PSR7Cookies\SetCookie;
 use PHPMailer\PHPMailer\PHPMailer;
 use Psr\Http\Message\ResponseInterface;
@@ -83,9 +82,9 @@ class ResetPasswordController
           $this->session->setUser ($this->user);
         }
 
-        $cookies = RequestCookies::createFromRequest ($request);
+        $cookies = $request->getCookieParams ();
 
-        if ($cookies->has ($cookieName)) {
+        if (array_key_exists ($cookieName, $cookies)) {
           $cookie   =
             SetCookie::thatStaysForever ($cookieName,
               $this->user->token,
